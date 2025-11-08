@@ -1,0 +1,62 @@
+/* frontend/src/App.css */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.auth-container {
+    margin: 20px auto;
+    padding: 30px;
+    border: 2px solid #3498db; /* 파란색 경계 */
+    border-radius: 10px;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-container input, .auth-container button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.form-container, .result-container, .content-container {
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.analysis-box, .pokemon-box {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px dashed #ddd;
+  border-radius: 6px;
+}
+
+textarea {
+  width: 90%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+}
+
+.app-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1em;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}
