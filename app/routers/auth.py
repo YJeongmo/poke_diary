@@ -12,6 +12,7 @@ from app.security import (
     get_password_hash,
     verify_password,
     create_access_token,
+    get_current_user,
 )
 
 router = APIRouter()
@@ -24,6 +25,7 @@ def register_user(
 ):
     """
     새로운 사용자 계정을 등록합니다.
+    인증코드에 따라 홈 화면 이미지 타입이 결정됩니다.
     """
     # 1. 이메일 중복 확인
     existing_user = session.exec(
@@ -36,21 +38,38 @@ def register_user(
             detail="이미 존재하는 이메일 주소입니다."
         )
 
-    # 2. 비밀번호 해싱
+    # 2. 인증코드 검증 및 이미지 타입 결정
+    auth_code_lower = user_data.auth_code.lower()
+    image_type = None
+    
+    if "gardevoir" in auth_code_lower:
+        image_type = "gardevoir"
+    elif "lucario" in auth_code_lower:
+        image_type = "lucario"
+    elif "pretty" in auth_code_lower:
+        image_type = "pretty"
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="인증코드가 올바르지 않습니다. 'Gardevoir', 'Lucario', 또는 'Pretty'가 포함되어야 합니다."
+        )
+
+    # 3. 비밀번호 해싱
     hashed_password = get_password_hash(user_data.password)
 
-    # 3. 사용자 객체 생성 및 DB 저장
+    # 4. 사용자 객체 생성 및 DB 저장
     new_user = User(
         email=user_data.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        image_type=image_type
     )
 
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
 
-    # 4. 응답 모델 반환 (비밀번호 제외)
-    return UserResponse(id=new_user.id, email=new_user.email)
+    # 5. 응답 모델 반환 (비밀번호 제외)
+    return UserResponse(id=new_user.id, email=new_user.email, image_type=new_user.image_type)
 
 
 # --- 2. 로그인 엔드포인트 ---
@@ -89,3 +108,14 @@ def login_for_access_token(
 
     # 4. 토큰 반환
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# --- 3. 현재 사용자 정보 조회 엔드포인트 ---
+@router.get("/me", response_model=UserResponse)
+def get_current_user_info(
+        current_user: User = Depends(get_current_user)
+):
+    """
+    현재 로그인한 사용자의 정보를 조회합니다.
+    """
+    return UserResponse(id=current_user.id, email=current_user.email, image_type=current_user.image_type)

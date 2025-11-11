@@ -1,3 +1,10 @@
+html {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: #000000; /* 상하좌우 검은색 배경 */
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -5,7 +12,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #000000; /* 검은색 배경 */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -27,7 +34,10 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh; /* 고정 높이 */
+  max-height: 100vh; /* 최대 높이 제한 */
+  background-color: #000000; /* 양 옆 검은색 배경 */
+  overflow: hidden; /* 스크롤 제거 */
 }
 
 h1 {

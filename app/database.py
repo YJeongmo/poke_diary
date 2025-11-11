@@ -13,7 +13,7 @@ engine = create_engine(sqlite_url, echo=True, connect_args={"check_same_thread":
 def create_db_and_tables():
     """엔진에 바인딩된 모든 SQLModel 테이블을 생성합니다."""
     # NOTE: 이 함수를 main.py에서 호출하여 서버 시작 시 DB를 초기화할 것입니다.
-    from app.models import Pokemon, DailyEncounterLog, Badge # 순환 참조 방지를 위해 함수 내에서 임시 import
+    from app.models import User, Pokemon, DailyEncounterLog, Badge # 순환 참조 방지를 위해 함수 내에서 임시 import
     SQLModel.metadata.create_all(engine)
 
 def get_session():

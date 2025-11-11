@@ -1,0 +1,7 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <circle cx="64" cy="64" r="58" fill="#8e44ad" stroke="#111" stroke-width="6"/>
+  <path d="M6 64h116" stroke="#111" stroke-width="8"/>
+  <circle cx="64" cy="64" r="18" fill="#ffffff" stroke="#111" stroke-width="6"/>
+  <text x="64" y="78" text-anchor="middle" font-size="36" fill="#ffffff" font-family="sans-serif">M</text>
+</svg>
+

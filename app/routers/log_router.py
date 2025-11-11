@@ -2,9 +2,10 @@
 
 from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, Form, status
 from fastapi.responses import JSONResponse
-from sqlmodel import Session
+from sqlmodel import Session, select, func
 from openai import OpenAI
 from dotenv import load_dotenv
+
 
 import os
 import base64
@@ -16,6 +17,9 @@ from app.database import get_session
 from app.models import Pokemon, DailyEncounterLog, DailyEncounterLogBase, User
 from app.security import get_current_user
 from app.services.encounter_service import select_weighted_pokemon
+from app.services.pokedex_service import PokedexService # ⭐️ 서비스 임포트 ⭐️
+from app.services.badge_service import BadgeService     # ⭐️ 서비스 임포트 ⭐️
+from app.schemas import LogListItem # ⭐️ LogListItem 임포트 확인 ⭐️
 
 # .env 파일에서 환경 변수 로드 (OPENAI_API_KEY)
 load_dotenv()
@@ -90,6 +94,7 @@ async def create_daily_encounter_log(
         base64_image = base64.b64encode(image_bytes).decode('utf-8')
         analysis_result = get_image_analysis(base64_image)
 
+
         # 2. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
         encountered_pokemon = select_weighted_pokemon(
             analysis_result,
@@ -139,3 +144,128 @@ async def create_daily_encounter_log(
     except Exception as e:
         print(f"Server Error: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"서버 내부 오류 발생: {e}")
+
+@router.get("/pokedex", tags=["Pokedex"])
+def get_user_pokedex(
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    로그인된 사용자가 조우한 포켓몬 도감 현황을 조회합니다.
+    """
+    pokedex_service = PokedexService(session) # ⭐️ 서비스 객체 생성 ⭐️
+    return pokedex_service.get_user_pokedex(current_user.id)
+
+
+@router.get("/badges", tags=["Badges"])
+def get_user_badges(
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    로그인된 사용자의 총 조우 횟수를 기준으로 획득한 뱃지 목록을 조회합니다.
+    """
+    badge_service = BadgeService(session) # ⭐️ 서비스 객체 생성 ⭐️
+    return badge_service.get_user_badges(current_user.id)
+
+
+@router.get("/logs", response_model=List[LogListItem], tags=["Daily Log & Encounter"]) # ⭐️ response_model 추가 ⭐️
+def get_user_logs(
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    로그인된 사용자의 모든 일지 기록 목록을 최신 순으로 조회합니다.
+    """
+
+    # 1. 포켓몬 정보와 일지 기록을 조인하여 한 번에 가져오기
+    statement = select(
+        DailyEncounterLog.id,
+        DailyEncounterLog.created_at,
+        DailyEncounterLog.user_reflection,
+        DailyEncounterLog.location_gpt,
+        Pokemon.name.label("pokemon_name"),
+        Pokemon.sprite_url.label("pokemon_sprite")
+    ).join(
+        Pokemon, DailyEncounterLog.pokemon_id == Pokemon.id
+    ).where(
+        DailyEncounterLog.user_id == current_user.id
+    ).order_by(
+        DailyEncounterLog.created_at.desc() # 최신순 정렬
+    )
+
+    results = session.exec(statement).all()
+
+    # 2. 응답 데이터 구조 생성 및 가공
+    response_data = []
+    for log_id, created_at, reflection, location, poke_name, poke_sprite in results:
+
+        # 소감 미리보기(Snippet) 생성 (50자 제한)
+        snippet = reflection[:50] + '...' if len(reflection) > 50 else reflection
+
+        # LogListItem 형식에 맞춰 데이터 가공
+        response_data.append(
+            LogListItem(
+                id=log_id,
+                created_at=created_at,
+                user_reflection_snippet=snippet,
+                pokemon_name=poke_name,
+                pokemon_sprite=poke_sprite,
+                location=location
+            )
+        )
+
+    return response_data
+
+
+# ====================================================
+# ⭐️ 엔드포인트: 일지 상세 조회 (인증 필요) ⭐️
+# 프론트의 DiaryLog.tsx가 기대하는 응답 형태에 맞춰 반환
+# ====================================================
+@router.get("/logs/{log_id}", tags=["Daily Log & Encounter"])
+def get_user_log_detail(
+        log_id: int,
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    로그인된 사용자의 단일 일지 상세 정보를 조회합니다.
+    """
+    # DailyEncounterLog와 Pokemon 조인
+    statement = select(
+        DailyEncounterLog,
+        Pokemon
+    ).join(
+        Pokemon, DailyEncounterLog.pokemon_id == Pokemon.id
+    ).where(
+        (DailyEncounterLog.id == log_id) & (DailyEncounterLog.user_id == current_user.id)
+    )
+
+    result = session.exec(statement).first()
+
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 기록을 찾을 수 없거나 접근 권한이 없습니다.")
+
+    log, pokemon = result
+
+    # 프론트 DiaryLog.tsx가 기대하는 응답 형태로 변환
+    response = {
+        "log_id": log.id,
+        "created_at": log.created_at,
+        "user_reflection": log.user_reflection,
+        "photo_url": log.photo_url,
+        "analysis": {
+            "location": log.location_gpt,
+            "environment": log.environment_gpt,
+            "time": log.time_gpt,
+            "season": log.season_gpt,
+        },
+        "pokemon": {
+            "name": pokemon.name,
+            "sprite_url": pokemon.sprite_url,
+            "type_1": pokemon.type_1,
+            "poke_id": pokemon.poke_id
+        }
+    }
+
+    return response

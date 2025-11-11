@@ -2,11 +2,14 @@
 
 from sqlmodel import SQLModel, Field
 from typing import Optional
+from pydantic import BaseModel
+from datetime import datetime
 
 # --- 사용자 회원가입/로그인 요청 시 사용 ---
 class UserCreate(SQLModel):
     email: str
     password: str = Field(min_length=6, max_length=72)
+    auth_code: str  # 인증코드 필드 추가
 
 class UserLogin(SQLModel):
     email: str
@@ -21,3 +24,17 @@ class Token(SQLModel):
 class UserResponse(SQLModel):
     id: int
     email: str
+    image_type: Optional[str] = None
+
+# --- DiaryList.tsx 에서 사용될 스키마 ---
+class LogListItem(BaseModel):
+    # Log 모델의 id와 일치하도록 log_id 대신 id 사용
+    id: int
+    created_at: datetime
+    user_reflection_snippet: str
+    pokemon_name: str
+    pokemon_sprite: str
+    location: str
+
+    class Config:
+        from_attributes = True

@@ -1719,6 +1719,7 @@ async def fetch_pokemon_details(pokemon_data: dict) -> dict:
         return {
             "poke_id": national_id,
             "name": pokemon_data['name_kr'],
+            "sinnoh_poke_id": pokemon_data['sinnoh_pokedex_number'],
             "type_1": type_1,
             "type_2": type_2,
             "sprite_url": data['sprites']['front_default']
@@ -1753,6 +1754,7 @@ async def init_pokemon_data():
                 pokemon_data = PokemonBase(
                     poke_id=detail['poke_id'],
                     name=detail['name'],
+                    sinnoh_poke_id=detail['sinnoh_poke_id'],
                     type_1=detail['type_1'],
                     type_2=detail['type_2'],
                     sprite_url=detail['sprite_url']

@@ -2,8 +2,10 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import httpx
+import os
 
 # 포켓몬 정보
 from app.database import create_db_and_tables
@@ -65,3 +67,8 @@ def read_root():
 app.include_router(log_router, prefix="/api/v1", tags=["Daily Log & Encounter"])
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+
+# 정적 파일 서빙: useImage 폴더
+useimage_path = os.path.join(os.path.dirname(__file__), "useImage")
+if os.path.exists(useimage_path):
+    app.mount("/useImage", StaticFiles(directory=useimage_path), name="useImage")

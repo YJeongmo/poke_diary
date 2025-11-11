@@ -1,96 +1,180 @@
-// frontend/src/App.tsx (로그인/회원가입 폼 및 상태 관리 추가)
+// frontend/src/App.tsx
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
+// ⭐️ 모든 컴포넌트 임포트 ⭐️
+import MainScreen from './MainScreen';
+import Pokedex from './Pokedex';
+import BadgeScreen from './BadgeScreen';
+import DiaryList from './DiaryList'; // 과거 기록 목록
+import DiaryLog from './DiaryLog';
+import DiaryBook from './DiaryBook';
+// DiaryLog, LoginForm, RegisterForm, EncounterForm은 이 파일 하단에 정의됨
 
-// API 응답 데이터 구조 정의 (TypeScript)
+// --- 1. 인터페이스 정의 ---
 interface PokemonEncounter {
-  message: string;
-  analysis: {
-    location: string;
-    environment: string;
-    time: string;
-  };
-  pokemon: {
-    id: number;
-    name: string;
-    type_1: string;
-    sprite_url: string;
-  };
-  log_id: number;
+    message: string;
+    analysis: {
+        location: string;
+        environment: string;
+        time: string;
+        season: string;
+    };
+    pokemon: {
+        id: number;
+        name: string;
+        type_1: string;
+        sprite_url: string;
+    };
+    log_id: number;
 }
 
-// --- 1. 인증 상태 관리 ---
+interface LoginFormProps {
+    onSuccess: (token: string, email: string) => void;
+    onSwitch: () => void;
+}
+
+interface EncounterFormProps {
+    userEmail: string | null;
+    onLogout: () => void;
+    // 모든 네비게이션 모드를 받을 수 있도록 타입 확장
+    onNavigate: (screen: 'encounter' | 'pokedex' | 'badges' | 'main' | 'diary_list') => void;
+    imageType: string | null;
+}
+
+interface DiaryLogProps {
+    logId: number | null;
+    onNavigate: (screen: 'main' | 'diary_list') => void;
+}
+
+// --- 2. 상수 및 상태 관리 키 ---
 const AUTH_TOKEN_KEY = 'pokemon_auth_token';
+
+// ====================================================
+// --- App 메인 컴포넌트 (라우팅 관리) ---
+// ====================================================
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [mode, setMode] = useState<'login' | 'register' | 'encounter'>('login');
+  const [userImageType, setUserImageType] = useState<string | null>(null);
 
-  // 토큰 존재 여부 확인 (페이지 로드 시)
-  useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (token) {
-      // 실제 앱에서는 토큰 유효성 검사 API를 호출해야 하지만, 여기서는 단순화
-      setIsLoggedIn(true);
-      setMode('encounter');
-    }
-  }, []);
+  // ⭐️ mode 상태 확장 (구조적 오류 수정) ⭐️
+  const [mode, setMode] = useState<'login' | 'register' | 'main' | 'encounter' | 'pokedex' | 'badges' | 'diary_list' | 'diary_detail' | 'diary_book'>('login');
+  const [selectedLogId, setSelectedLogId] = useState<number | null>(null);
 
-  // --- 2. 인증 관련 핸들러 ---
+  // --- 네비게이션 및 인증 핸들러 ---
 
-  const handleAuthSuccess = (token: string, email: string) => {
+  const handleNavigation = (newMode: 'encounter' | 'pokedex' | 'badges' | 'main' | 'diary_list' | 'diary_book') => {
+      setMode(newMode);
+  };
+
+  const handleViewLog = (logId: number) => {
+      setSelectedLogId(logId);
+      setMode('diary_detail');
+  };
+
+  const handleAuthSuccess = async (token: string, email: string) => {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
     setIsLoggedIn(true);
     setUserEmail(email);
-    setMode('encounter');
+    
+    // 사용자 정보 가져오기 (image_type 포함)
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setUserImageType(userData.image_type);
+      }
+    } catch (err) {
+      console.error('사용자 정보 가져오기 실패:', err);
+    }
+    
+    setMode('main'); // 로그인 성공 시 MainScreen으로 이동
   };
 
   const handleLogout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     setIsLoggedIn(false);
     setUserEmail(null);
+    setUserImageType(null);
     setMode('login');
-    // 새로고침하여 상태 확실히 초기화
     window.location.reload();
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      setIsLoggedIn(true);
+      setMode('main');
+      setUserEmail('트레이너');
+      
+      // 사용자 정보 가져오기
+      fetch('http://localhost:8000/api/v1/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(userData => {
+          setUserEmail(userData.email || '트레이너');
+          setUserImageType(userData.image_type);
+        })
+        .catch(err => {
+          console.error('사용자 정보 가져오기 실패:', err);
+        });
+    }
+  }, []);
+
   // --- 3. 렌더링 모드 선택 ---
   const renderContent = () => {
-    if (!isLoggedIn && mode === 'login') {
+    // 1. 비로그인 상태
+    if (!isLoggedIn) {
+      if (mode === 'register') return <RegisterForm onSuccess={handleAuthSuccess} onSwitch={() => setMode('login')} />;
       return <LoginForm onSuccess={handleAuthSuccess} onSwitch={() => setMode('register')} />;
     }
-    if (!isLoggedIn && mode === 'register') {
-      return <RegisterForm onSuccess={handleAuthSuccess} onSwitch={() => setMode('login')} />;
+
+    // 2. 로그인 상태
+    switch (mode) {
+        case 'main':
+            return <MainScreen onNavigate={handleNavigation} onLogout={handleLogout} userEmail={userEmail} imageType={userImageType} />;
+
+        case 'diary_list':
+            return <DiaryList onNavigate={handleNavigation} onViewLog={handleViewLog} imageType={userImageType} />;
+
+        case 'diary_detail':
+            // DiaryLog 컴포넌트는 다음 단계에서 상세 구현 예정
+            return <DiaryLog logId={selectedLogId} onNavigate={handleNavigation} imageType={userImageType} />;
+        case 'diary_book':
+            return <DiaryBook onNavigate={handleNavigation} imageType={userImageType} />;
+
+        case 'encounter':
+            return <EncounterForm userEmail={userEmail} onLogout={handleLogout} onNavigate={handleNavigation} imageType={userImageType} />;
+        case 'pokedex':
+            return <Pokedex onNavigate={handleNavigation} imageType={userImageType} />;
+        case 'badges':
+            return <BadgeScreen onNavigate={handleNavigation} imageType={userImageType} />;
+        default:
+            return <MainScreen onNavigate={handleNavigation} onLogout={handleLogout} userEmail={userEmail} imageType={userImageType} />;
     }
-    if (isLoggedIn) {
-      return (
-        <EncounterForm
-          userEmail={userEmail}
-          onLogout={handleLogout}
-        />
-      );
-    }
-    return <p>로딩 중...</p>;
   };
 
   return (
     <div className="App">
-      <h1>Pokémon Daily Log</h1>
-      {renderContent()}
+        {renderContent()}
     </div>
   );
 }
 
 // ====================================================
-// --- 컴포넌트: 로그인 폼 ---
+// --- 4. 독립적인 컴포넌트 정의 (ReferenceError 해결) ---
 // ====================================================
-interface LoginFormProps {
-  onSuccess: (token: string, email: string) => void;
-  onSwitch: () => void;
-}
 
+// --- 4.1. 로그인 폼 ---
 function LoginForm({ onSuccess, onSwitch }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -105,13 +189,13 @@ function LoginForm({ onSuccess, onSwitch }: LoginFormProps) {
     const formData = new URLSearchParams();
     formData.append('username', email); // FastAPI OAuth2는 이메일을 'username'으로 받음
     formData.append('password', password);
-    formData.append('grant_type', 'password'); // OAuth2 필수 필드
+    formData.append('grant_type', 'password');
 
     try {
       const response = await fetch('http://localhost:8000/api/v1/auth/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded', // OAuth2 표준 헤더
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: formData,
       });
@@ -147,12 +231,11 @@ function LoginForm({ onSuccess, onSwitch }: LoginFormProps) {
   );
 }
 
-// ====================================================
-// --- 컴포넌트: 회원가입 폼 ---
-// ====================================================
+// --- 4.2. 회원가입 폼 ---
 function RegisterForm({ onSuccess, onSwitch }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [authCode, setAuthCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -167,7 +250,7 @@ function RegisterForm({ onSuccess, onSwitch }: LoginFormProps) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, auth_code: authCode }),
       });
 
       if (!response.ok) {
@@ -206,6 +289,7 @@ function RegisterForm({ onSuccess, onSwitch }: LoginFormProps) {
       <form onSubmit={handleSubmit}>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="이메일 (ID)" required />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="비밀번호 (72자 이하)" required />
+        <input type="text" value={authCode} onChange={(e) => setAuthCode(e.target.value)} placeholder="인증코드 (Gardevoir, Lucario, 또는 Pretty 포함)" required />
         <button type="submit" disabled={loading}>
           {loading ? '등록 중...' : '회원가입 및 로그인'}
         </button>
@@ -216,15 +300,10 @@ function RegisterForm({ onSuccess, onSwitch }: LoginFormProps) {
   );
 }
 
-// ====================================================
-// --- 컴포넌트: Encounter 폼 (기존 로직 포함) ---
-// ====================================================
-interface EncounterFormProps {
-    userEmail: string | null;
-    onLogout: () => void;
-}
-
-function EncounterForm({ userEmail, onLogout }: EncounterFormProps) {
+// --- 4.3. 일지 작성 폼 (EncounterForm) ---
+function EncounterForm({ userEmail, onLogout, onNavigate, imageType }: EncounterFormProps) {
+    const { getBackgroundStyle } = require('./utils/backgroundUtils');
+    const backgroundStyle = getBackgroundStyle(imageType);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [reflection, setReflection] = useState('');
     const [result, setResult] = useState<PokemonEncounter | null>(null);
@@ -263,7 +342,7 @@ function EncounterForm({ userEmail, onLogout }: EncounterFormProps) {
             const response = await fetch('http://localhost:8000/api/v1/encounter', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}` // ⭐️ JWT 토큰 포함 ⭐️
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData,
             });
@@ -286,9 +365,10 @@ function EncounterForm({ userEmail, onLogout }: EncounterFormProps) {
     };
 
     return (
-        <div className="content-container">
+        <div className="content-container" style={backgroundStyle}>
             <header className="app-header">
-                <p>환영합니다, **{userEmail || '트레이너'}**님!</p>
+                <button onClick={() => onNavigate('main')} className="back-button">← 메인으로</button>
+                <p>환영합니다, **{userEmail || '트레이너'}**님! (일지 작성)</p>
                 <button onClick={onLogout} style={{ marginLeft: '10px' }}>로그아웃</button>
             </header>
 
@@ -328,7 +408,12 @@ function EncounterForm({ userEmail, onLogout }: EncounterFormProps) {
 
                     <div className="analysis-box">
                         <h3>🗺️ 환경 분석 (GPT)</h3>
-                        <p><strong>지역:</strong> {result.analysis.location} / <strong>환경:</strong> {result.analysis.environment} / <strong>시간:</strong> {result.analysis.time}</p>
+                        <p>
+                            <strong>지역:</strong> {result.analysis.location} /
+                            <strong>환경:</strong> {result.analysis.environment} /
+                            <strong>시간:</strong> {result.analysis.time} /
+                            <strong>계절:</strong> {result.analysis.season}
+                        </p>
                     </div>
 
                     <div className="pokemon-box">
@@ -346,4 +431,6 @@ function EncounterForm({ userEmail, onLogout }: EncounterFormProps) {
     );
 }
 
+
+// 5. 익스포트
 export default App;
