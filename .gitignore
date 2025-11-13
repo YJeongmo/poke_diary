@@ -45,6 +45,9 @@ env/
 *.sqlite3
 database.db
 
+# Uploaded images
+uploads/
+
 # Logs
 *.log
 

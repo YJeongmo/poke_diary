@@ -6,7 +6,6 @@ from sqlmodel import Session, select, func
 from openai import OpenAI
 from dotenv import load_dotenv
 
-
 import os
 import base64
 import json
@@ -93,7 +92,6 @@ async def create_daily_encounter_log(
         image_bytes = await image_file.read()
         base64_image = base64.b64encode(image_bytes).decode('utf-8')
         analysis_result = get_image_analysis(base64_image)
-
 
         # 2. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
         encountered_pokemon = select_weighted_pokemon(
@@ -216,56 +214,3 @@ def get_user_logs(
         )
 
     return response_data
-
-
-# ====================================================
-# ⭐️ 엔드포인트: 일지 상세 조회 (인증 필요) ⭐️
-# 프론트의 DiaryLog.tsx가 기대하는 응답 형태에 맞춰 반환
-# ====================================================
-@router.get("/logs/{log_id}", tags=["Daily Log & Encounter"])
-def get_user_log_detail(
-        log_id: int,
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user)
-):
-    """
-    로그인된 사용자의 단일 일지 상세 정보를 조회합니다.
-    """
-    # DailyEncounterLog와 Pokemon 조인
-    statement = select(
-        DailyEncounterLog,
-        Pokemon
-    ).join(
-        Pokemon, DailyEncounterLog.pokemon_id == Pokemon.id
-    ).where(
-        (DailyEncounterLog.id == log_id) & (DailyEncounterLog.user_id == current_user.id)
-    )
-
-    result = session.exec(statement).first()
-
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 기록을 찾을 수 없거나 접근 권한이 없습니다.")
-
-    log, pokemon = result
-
-    # 프론트 DiaryLog.tsx가 기대하는 응답 형태로 변환
-    response = {
-        "log_id": log.id,
-        "created_at": log.created_at,
-        "user_reflection": log.user_reflection,
-        "photo_url": log.photo_url,
-        "analysis": {
-            "location": log.location_gpt,
-            "environment": log.environment_gpt,
-            "time": log.time_gpt,
-            "season": log.season_gpt,
-        },
-        "pokemon": {
-            "name": pokemon.name,
-            "sprite_url": pokemon.sprite_url,
-            "type_1": pokemon.type_1,
-            "poke_id": pokemon.poke_id
-        }
-    }
-
-    return response
