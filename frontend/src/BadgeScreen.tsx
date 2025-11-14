@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
-import api from '../utils/api';
-import { Badge, ScreenName } from '../types';
+import api from './utils/api';
+import type { Badge, ScreenName } from './types';
 
 interface BadgeScreenProps {
     onNavigate: (screen: ScreenName) => void;
@@ -21,7 +21,7 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
             if (!token) return;
             try {
                 setLoading(true);
-                const response = await api.get('/api/v1/badges', token);
+                const response = await api.get('/badges', token);
                 setBadges(response.data.badges);
             } catch (error) {
                 console.error("Failed to fetch badges:", error);

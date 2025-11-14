@@ -1,16 +1,12 @@
 // frontend/src/components/MainScreen.tsx
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { getBackgroundStyle } from '../utils/backgroundUtils';
-import { ScreenName } from '../types';
+import type { ScreenName } from '../types';
 
 // 이미지 URL 상수
 const BASE_URL = 'http://localhost:8000/useImage';
 const POKEDEX_IMAGE = `${BASE_URL}/poke_dex.webp`;
 const BADGE_IMAGE = `${BASE_URL}/poke_badge.png`;
-
-// Scaling 기준 해상도 (App.css와 일치)
-const BASE_APP_WIDTH = 1000;
-const BASE_APP_HEIGHT = 800;
 
 interface MainScreenProps {
     onNavigate: (screen: ScreenName) => void;
@@ -20,33 +16,6 @@ interface MainScreenProps {
 }
 
 function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenProps) {
-
-    // ⭐ App.tsx에서 .App Ref를 받지 못하므로, MainScreen이 컨테이너 역할을 수행
-    const appContainerRef = useRef<HTMLDivElement>(null);
-
-    // ⭐ Scaling 로직: 창 크기에 맞춰 컨테이너를 확대/축소
-    useEffect(() => {
-        const handleResize = () => {
-            if (!appContainerRef.current) return;
-
-            const root = document.getElementById('root');
-            if (!root) return;
-
-            const windowWidth = root.clientWidth;
-            const windowHeight = root.clientHeight;
-
-            const scaleX = windowWidth / BASE_APP_WIDTH;
-            const scaleY = windowHeight / BASE_APP_HEIGHT;
-            const scaleFactor = Math.min(scaleX, scaleY);
-
-            // App.css에서 transform-origin: center center;가 적용되어야 합니다.
-            appContainerRef.current.style.transform = `scale(${scaleFactor})`;
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     // 일지 버튼 이미지 결정
     const getDiaryButtonImage = () => {
@@ -82,16 +51,8 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
     const backgroundStyle = getBackgroundStyle(imageType);
 
     return (
-        // MainScreen이 .App 컨테이너 역할을 수행
-        <div
-            ref={appContainerRef}
-            className="App"
-            style={{
-                width: `${BASE_APP_WIDTH}px`,
-                height: `${BASE_APP_HEIGHT}px`,
-            }}
-        >
-            <div className="screen-container main-screen-container" style={backgroundStyle}>
+        // MainScreen은 이제 .App 컨테이너 안에서 실행됩니다 (App.tsx에서 제공)
+        <div className="screen-container main-screen-container" style={backgroundStyle}>
                 <div className="main-header">
                     <h1 className="trainer-name">{userEmail || '트레이너'}님 ID표시</h1>
                     <button onClick={onLogout} className="logout-button">로그아웃</button>
@@ -127,7 +88,6 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
                     </div>
                 </div>
             </div>
-        </div>
     );
 }
 

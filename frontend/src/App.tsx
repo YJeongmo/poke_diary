@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import PrivateRoute from './components/PrivateRoute';
+import './App.css';
 
 // 화면 컴포넌트들
 import AuthScreen from './components/AuthScreen';
@@ -12,9 +13,53 @@ import PokedexScreen from './Pokedex';
 import BadgeScreen from './BadgeScreen';
 import DiaryListScreen from './DiaryListScreen'; // ⭐ 추가
 import DiaryDetailScreen from './DiaryDetailScreen'; // ⭐ 추가
-import { ScreenName } from './types'; // ⭐ 추가
+import type { ScreenName } from './types';
 
-// ⭐ MainScreen에서 Scaling을 처리하므로, App.tsx에서는 Ref를 사용하지 않습니다.
+// Scaling 기준 해상도 (App.css와 일치)
+const BASE_APP_WIDTH = 1000;
+const BASE_APP_HEIGHT = 800;
+
+// ⭐ App.tsx에서 모든 화면을 .App 컨테이너로 감싸고 스케일링을 처리합니다.
+function AppWrapper({ children }: { children: React.ReactNode }) {
+  const appContainerRef = useRef<HTMLDivElement>(null);
+
+  // ⭐ Scaling 로직: 창 크기에 맞춰 컨테이너를 확대/축소
+  useEffect(() => {
+    const handleResize = () => {
+      if (!appContainerRef.current) return;
+
+      const root = document.getElementById('root');
+      if (!root) return;
+
+      const windowWidth = root.clientWidth;
+      const windowHeight = root.clientHeight;
+
+      const scaleX = windowWidth / BASE_APP_WIDTH;
+      const scaleY = windowHeight / BASE_APP_HEIGHT;
+      const scaleFactor = Math.min(scaleX, scaleY);
+
+      // App.css에서 transform-origin: center center;가 적용되어야 합니다.
+      appContainerRef.current.style.transform = `scale(${scaleFactor})`;
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div
+      ref={appContainerRef}
+      className="App"
+      style={{
+        width: `${BASE_APP_WIDTH}px`,
+        height: `${BASE_APP_HEIGHT}px`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function AppContent() {
   const { user, logout } = useAuth();
@@ -34,22 +79,18 @@ function AppContent() {
   };
 
   return (
-    // App.tsx는 .App wrapper를 직접 렌더링하지 않고,
-    // MainScreen 등 각 화면이 .App 역할을 하도록 넘깁니다.
     <Routes>
       {/* 로그인/회원가입 화면 */}
-      <Route path="/auth" element={<AuthScreen onLoginSuccess={() => navigate('/main')} />} />
+      <Route path="/auth" element={<AppWrapper><AuthScreen onLoginSuccess={() => navigate('/main')} /></AppWrapper>} />
 
-      {/* MainScreen은 Scaling을 담당하는 .App 역할을 합니다. */}
-      <Route path="/" element={<PrivateRoute><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-      <Route path="/main" element={<PrivateRoute><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-
-      {/* 나머지 화면들은 MainScreen과 구조를 맞추기 위해 별도의 컨테이너를 가집니다. */}
-      <Route path="/encounter" element={<PrivateRoute><EncounterScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-      <Route path="/pokedex" element={<PrivateRoute><PokedexScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-      <Route path="/badges" element={<PrivateRoute><BadgeScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-      <Route path="/diary_list" element={<PrivateRoute><DiaryListScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
-      <Route path="/diary_book/:logId" element={<PrivateRoute><DiaryDetailScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></PrivateRoute>} />
+      {/* 모든 화면을 .App 컨테이너로 감싸서 빨간색+파란색 테두리 영역에서 실행되도록 합니다. */}
+      <Route path="/" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/main" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/encounter" element={<PrivateRoute><AppWrapper><EncounterScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/pokedex" element={<PrivateRoute><AppWrapper><PokedexScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/badges" element={<PrivateRoute><AppWrapper><BadgeScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/diary_list" element={<PrivateRoute><AppWrapper><DiaryListScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/diary_book/:logId" element={<PrivateRoute><AppWrapper><DiaryDetailScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
     </Routes>
   );
 }

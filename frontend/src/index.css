@@ -1,5 +1,5 @@
 /* frontend/src/index.css */
-html, body, #root {
+html, body {
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -8,10 +8,19 @@ html, body, #root {
   font-family: Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #000000; /* 브라우저 창 배경색 (검은색 테두리 영역) */
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000000; /* 외부 배경색 */
+  /* 브라우저 창 중앙에 애플리케이션 영역을 배치 */
 }
 
 button {

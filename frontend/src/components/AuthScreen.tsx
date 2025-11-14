@@ -26,7 +26,7 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
     try {
       if (isRegister) {
         // 회원가입
-        await api.publicPost('/api/v1/auth/register', { email, password, auth_code: authCode });
+        await api.publicPost('/auth/register', { email, password, auth_code: authCode });
         alert('회원가입 성공! 로그인 해주세요.');
         setIsRegister(false);
       } else {
@@ -36,7 +36,7 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
         formData.append('password', password);
         formData.append('grant_type', 'password');
 
-        const response = await api.publicPost('/api/v1/auth/login', formData.toString(), true);
+        const response = await api.publicPost('/auth/login', formData.toString(), true);
         authLogin(response.data.access_token);
         onLoginSuccess();
       }

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';
-import { LogEntry, ScreenName } from './types';
+import type { LogEntry, ScreenName } from './types';
 import { format } from 'date-fns';
 
 interface DiaryListScreenProps {
@@ -22,7 +22,7 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
             if (!token) return;
             try {
                 setLoading(true);
-                const response = await api.get('/api/v1/logs', token);
+                const response = await api.get('/logs', token);
                 setLogs(response.data);
             } catch (error) {
                 console.error("Failed to fetch logs:", error);

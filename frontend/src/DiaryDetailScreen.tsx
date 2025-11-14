@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';
-import { DiaryDetail, ScreenName } from './types';
+import type { DiaryDetail, ScreenName } from './types';
 import { format } from 'date-fns';
 
 interface DiaryDetailScreenProps {
@@ -33,7 +33,7 @@ function DiaryDetailScreen({ onNavigate, imageType }: DiaryDetailScreenProps) {
              try {
                  setLoading(true);
                  // 실제 API 호출 (백엔드 구현 후 사용)
-                 // const response = await api.get(`/api/v1/logs/${logId}`, token);
+                 // const response = await api.get(`/logs/${logId}`, token);
                  // setDetail(response.data as DiaryDetail);
 
                  // ⭐ 임시 더미 데이터 (UI 예시 이미지 6 기반)

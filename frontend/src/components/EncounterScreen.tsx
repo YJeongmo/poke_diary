@@ -1,7 +1,7 @@
 // frontend/src/components/EncounterScreen.tsx
 import React, { useState, FormEvent, useRef } from 'react';
 import { getBackgroundStyle } from '../utils/backgroundUtils';
-import { ScreenName } from '../types';
+import type { ScreenName } from '../types';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 
@@ -38,7 +38,7 @@ function EncounterScreen({ onNavigate, imageType }: EncounterScreenProps) {
 
         setLoading(true);
         try {
-            const response = await api.postMultipart('/api/v1/encounter', formData, token);
+            const response = await api.postMultipart('/encounter', formData, token);
             alert('조우 기록 성공! 일지를 확인합니다.');
             setLogId(response.data.log_id); // 기록 후 바로 상세 페이지로 이동
         } catch (error) {
@@ -128,7 +128,7 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
              if (!token) return;
              try {
                  // 실제 API 호출 (백엔드 구현 후 사용)
-                 // const response = await api.get(`/api/v1/logs/${logId}`, token);
+                 // const response = await api.get(`/logs/${logId}`, token);
                  // setDetail(response.data as DiaryDetail);
 
                  // ⭐ 임시 더미 데이터 (UI 예시 이미지 6 기반)

@@ -1,7 +1,7 @@
-// frontend/src/hooks/useAuth.ts
+// frontend/src/hooks/useAuth.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../utils/api';
-import { User } from '../types';
+import type { User } from '../types';
 
 interface AuthContextType {
   token: string | null;
@@ -33,10 +33,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUser = async (accessToken: string) => {
     try {
-      const response = await api.get('/api/v1/auth/me', accessToken);
+      console.log('Fetching user with token:', accessToken ? 'Token exists' : 'No token');
+      const response = await api.get('/auth/me', accessToken);
+      console.log('User data received:', response.data);
       setUser(response.data as User);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch user data, logging out.", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Request URL:", error.config?.url);
       internalLogout();
     } finally {
       setIsLoading(false);
@@ -82,3 +86,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

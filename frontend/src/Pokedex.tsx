@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';
-import { PokedexData, ScreenName } from './types';
+import type { PokedexData, ScreenName } from './types';
 
 interface PokedexScreenProps {
     onNavigate: (screen: ScreenName) => void;
@@ -24,7 +24,7 @@ function PokedexScreen({ onNavigate, imageType }: PokedexScreenProps) {
             if (!token) return;
             try {
                 setLoading(true);
-                const response = await api.get('/api/v1/pokedex', token);
+                const response = await api.get('/pokedex', token);
                 // 모든 도감 항목을 번호 순서대로 가져온다고 가정
                 setPokedexData(response.data);
             } catch (error) {
