@@ -1,7 +1,7 @@
 # pokemon-fastapi-project/app/schemas.py
 
 from sqlmodel import SQLModel, Field
-from typing import Optional
+from typing import Optional, List, Dict
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -35,6 +35,30 @@ class LogListItem(BaseModel):
     pokemon_name: str
     pokemon_sprite: str
     location: str
+
+    class Config:
+        from_attributes = True
+
+# --- DiaryDetail.tsx 에서 사용될 스키마 ---
+class AnalysisInfo(BaseModel):
+    location: str
+    environment: str
+    time: str
+    season: str
+
+class PokemonInfo(BaseModel):
+    name: str
+    sprite_url: str
+    type_1: str
+    poke_id: int
+
+class DiaryDetailResponse(BaseModel):
+    log_id: int
+    created_at: datetime
+    user_reflection: str
+    photo_url: str
+    analysis: AnalysisInfo
+    pokemon: PokemonInfo
 
     class Config:
         from_attributes = True

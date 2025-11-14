@@ -62,7 +62,7 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
                     {/* 모험 기록 버튼 (왼쪽 큰 책) */}
                     <button
                         className="image-button-box diary-button"
-                        onClick={() => onNavigate('encounter')} // UI 예시에 맞춰 일지 작성(모험 기록)으로 바로 이동
+                        onClick={() => onNavigate('diary_list')} // 모험 기록 화면으로 이동
                         style={diaryBoxStyle}
                     >
                         모험 기록

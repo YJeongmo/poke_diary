@@ -72,3 +72,8 @@ app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 useimage_path = os.path.join(os.path.dirname(__file__), "useImage")
 if os.path.exists(useimage_path):
     app.mount("/useImage", StaticFiles(directory=useimage_path), name="useImage")
+
+# 정적 파일 서빙: uploads 폴더 (사용자별 업로드 이미지)
+uploads_path = os.path.join(os.path.dirname(__file__), "uploads")
+if os.path.exists(uploads_path):
+    app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")

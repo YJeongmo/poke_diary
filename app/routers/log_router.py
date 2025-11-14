@@ -11,6 +11,8 @@ import base64
 import json
 import random
 from typing import Dict, List, Tuple
+from pathlib import Path
+from datetime import datetime
 
 from app.database import get_session
 from app.models import Pokemon, DailyEncounterLog, DailyEncounterLogBase, User
@@ -18,7 +20,7 @@ from app.security import get_current_user
 from app.services.encounter_service import select_weighted_pokemon
 from app.services.pokedex_service import PokedexService # ⭐️ 서비스 임포트 ⭐️
 from app.services.badge_service import BadgeService     # ⭐️ 서비스 임포트 ⭐️
-from app.schemas import LogListItem # ⭐️ LogListItem 임포트 확인 ⭐️
+from app.schemas import LogListItem, DiaryDetailResponse, AnalysisInfo, PokemonInfo # ⭐️ 스키마 임포트 ⭐️
 
 # .env 파일에서 환경 변수 로드 (OPENAI_API_KEY)
 load_dotenv()
@@ -88,12 +90,14 @@ async def create_daily_encounter_log(
     인증된 사용자만 사진을 분석하고 조우 기록을 저장할 수 있습니다.
     """
     try:
-        # 1. 이미지 분석
+        # 1. 이미지 읽기 (한 번만 읽고 재사용)
         image_bytes = await image_file.read()
+        
+        # 2. 이미지 분석
         base64_image = base64.b64encode(image_bytes).decode('utf-8')
         analysis_result = get_image_analysis(base64_image)
 
-        # 2. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
+        # 3. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
         encountered_pokemon = select_weighted_pokemon(
             analysis_result,
             user_reflection,
@@ -103,12 +107,31 @@ async def create_daily_encounter_log(
         if encountered_pokemon is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="포켓몬 데이터를 찾을 수 없습니다.")
 
-        # 3. Log 모델 생성 및 DB에 저장
+        # 4. 이미지 저장
+        # uploads/{user_id}/ 폴더 구조 생성
+        uploads_dir = Path("uploads")
+        user_dir = uploads_dir / str(current_user.id)
+        user_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 파일명 생성: timestamp_original_filename
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        file_extension = Path(image_file.filename).suffix if image_file.filename else ".jpg"
+        filename = f"{timestamp}{file_extension}"
+        file_path = user_dir / filename
+        
+        # 이미지 파일 저장 (이미 읽은 image_bytes 사용)
+        with open(file_path, "wb") as f:
+            f.write(image_bytes)
+        
+        # photo_url 생성: /uploads/{user_id}/{filename}
+        photo_url = f"/uploads/{current_user.id}/{filename}"
+
+        # 5. Log 모델 생성 및 DB에 저장
         new_log_data = DailyEncounterLogBase(
             # Log 모델 키와 GPT 분석 결과 키가 일치해야 함 (location_gpt, season_gpt 등)
             **analysis_result, # ⭐️ 분석 결과를 바로 언패킹하여 사용 ⭐️
             user_reflection=user_reflection,
-            photo_url="TODO: 이미지 저장소 URL",
+            photo_url=photo_url,
         )
 
         new_log = DailyEncounterLog(
@@ -121,7 +144,7 @@ async def create_daily_encounter_log(
         session.commit()
         session.refresh(new_log)
 
-        # 4. 결과 반환
+        # 6. 결과 반환
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
             content={
@@ -214,3 +237,54 @@ def get_user_logs(
         )
 
     return response_data
+
+
+@router.get("/logs/{log_id}", response_model=DiaryDetailResponse, tags=["Daily Log & Encounter"])
+def get_log_detail(
+        log_id: int,
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    특정 일지 기록의 상세 정보를 조회합니다.
+    """
+    # 1. 로그 조회 (사용자 소유 확인)
+    statement = select(DailyEncounterLog).where(
+        DailyEncounterLog.id == log_id,
+        DailyEncounterLog.user_id == current_user.id
+    )
+    log = session.exec(statement).first()
+    
+    if not log:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="일지 기록을 찾을 수 없습니다."
+        )
+    
+    # 2. 포켓몬 정보 조회
+    pokemon = session.get(Pokemon, log.pokemon_id)
+    if not pokemon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="포켓몬 정보를 찾을 수 없습니다."
+        )
+    
+    # 3. 응답 데이터 구성
+    return DiaryDetailResponse(
+        log_id=log.id,
+        created_at=log.created_at,
+        user_reflection=log.user_reflection,
+        photo_url=log.photo_url or "",
+        analysis=AnalysisInfo(
+            location=log.location_gpt or "알 수 없음",
+            environment=log.environment_gpt or "알 수 없음",
+            time=log.time_gpt or "알 수 없음",
+            season=log.season_gpt or "알 수 없음"
+        ),
+        pokemon=PokemonInfo(
+            name=pokemon.name,
+            sprite_url=pokemon.sprite_url,
+            type_1=pokemon.type_1,
+            poke_id=pokemon.poke_id
+        )
+    )
