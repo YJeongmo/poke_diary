@@ -1,21 +1,20 @@
 // frontend/src/utils/backgroundUtils.ts
-
 import React from 'react';
 
+const BASE_URL = 'http://localhost:8000/useImage';
+
 /**
- * 이미지 타입에 따라 배경 이미지 URL을 반환합니다.
- * @param imageType - 사용자의 이미지 타입 (gardevoir, lucario, pretty)
- * @returns 배경 이미지 URL 또는 null
+ * 사용자 image_type에 따라 배경 이미지 URL을 반환합니다.
  */
-export function getBackgroundImage(imageType: string | null): string | null {
+function getBackgroundImage(imageType: string | null): string | null {
     if (!imageType) return null;
-    
-    switch (imageType) {
+
+    switch (imageType.toLowerCase()) {
         case 'gardevoir':
         case 'lucario':
-            return 'http://localhost:8000/useImage/background_ab.png';
+            return `${BASE_URL}/background_ab.png`;
         case 'pretty':
-            return 'http://localhost:8000/useImage/background_c.jpeg';
+            return `${BASE_URL}/background_c.jpeg`;
         default:
             return null;
     }
@@ -23,24 +22,19 @@ export function getBackgroundImage(imageType: string | null): string | null {
 
 /**
  * 배경 이미지 스타일을 반환합니다.
- * @param imageType - 사용자의 이미지 타입
- * @returns 배경 이미지 스타일 객체
+ * cover를 통해 컨테이너를 꽉 채우고, fixed는 제거하여 스케일링에 맞춰 움직입니다.
  */
 export function getBackgroundStyle(imageType: string | null): React.CSSProperties {
     const backgroundImage = getBackgroundImage(imageType);
-    
+
     if (!backgroundImage) {
-        return {};
+        return { backgroundColor: '#333' }; // 이미지가 없을 때 기본 배경색 (UI 공통 배경색)
     }
-    
+
     return {
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        width: '100%',
-        height: '100vh',
-        minHeight: '100vh'
     };
 }
-

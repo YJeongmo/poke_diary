@@ -1,0 +1,110 @@
+// frontend/src/DiaryDetailScreen.tsx
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { getBackgroundStyle } from './utils/backgroundUtils';
+import { useAuth } from './hooks/useAuth';
+import api from './utils/api';
+import { DiaryDetail, ScreenName } from './types';
+import { format } from 'date-fns';
+
+interface DiaryDetailScreenProps {
+    onNavigate: (screen: ScreenName) => void;
+    userEmail: string | null;
+    imageType: string | null;
+}
+
+// 이 컴포넌트는 UI 이미지 6 ('모험 기록 - 기록 후')와 유사합니다.
+function DiaryDetailScreen({ onNavigate, imageType }: DiaryDetailScreenProps) {
+    const { logId: logIdParam } = useParams<{ logId: string }>();
+    const logId = logIdParam ? parseInt(logIdParam) : null;
+
+    const [detail, setDetail] = useState<DiaryDetail | null>(null);
+    const [loading, setLoading] = useState(true);
+    const { token } = useAuth();
+
+    // 이 페이지는 일지 목록(/diary_list)에서 개별 항목을 클릭했을 때 들어옵니다.
+    useEffect(() => {
+        if (!logId || !token) {
+            setLoading(false);
+            return;
+        }
+
+        const fetchDetail = async () => {
+             try {
+                 setLoading(true);
+                 // 실제 API 호출 (백엔드 구현 후 사용)
+                 // const response = await api.get(`/api/v1/logs/${logId}`, token);
+                 // setDetail(response.data as DiaryDetail);
+
+                 // ⭐ 임시 더미 데이터 (UI 예시 이미지 6 기반)
+                 const dummyDetail: DiaryDetail = {
+                     log_id: logId,
+                     created_at: "2025-11-12T10:30:00",
+                     user_reflection: "카페에 와서 아메리카노를 마셨다. 문득 창 밖을 보는데 단풍이 예쁘게 들어있었다.",
+                     photo_url: "http://localhost:8000/uploads/dummy/apartment.jpg",
+                     analysis: { location: "도시", environment: "맑음", time: "낮", season: "가을" },
+                     pokemon: { name: "왕자리", sprite_url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/330.png", type_1: "벌레", poke_id: 330 },
+                 };
+                 setDetail(dummyDetail);
+             } catch (error) {
+                 console.error("Failed to fetch diary detail:", error);
+             } finally {
+                 setLoading(false);
+             }
+        };
+        fetchDetail();
+    }, [logId, token]);
+
+    const backgroundStyle = getBackgroundStyle(imageType);
+
+    if (loading || !detail) {
+        return <div className="screen-container" style={backgroundStyle}>
+            <button className="back-button" onClick={() => onNavigate('diary_list')}>← 목록으로</button>
+            <h2 className="page-title">일지 상세 보기</h2>
+            <div className="book-wrapper"><div className="loading-spinner" /></div>
+        </div>;
+    }
+
+    const { created_at, user_reflection, photo_url, pokemon } = detail;
+    const formattedDate = format(new Date(created_at), 'yyyy.MM.dd');
+
+    return (
+        <div className="screen-container" style={backgroundStyle}>
+            <button className="back-button" onClick={() => onNavigate('diary_list')}>← 목록으로</button>
+            <h2 className="page-title">모험기록 - 기록후</h2>
+
+            <div className="book-wrapper">
+                <div className="book-ui">
+                    {/* UI 예시의 페이지 번호는 생략합니다. */}
+
+                    <div className="book-spread">
+                        {/* 왼쪽 페이지: 오늘의 사진 */}
+                        <div className="book-page book-page-left">
+                            <h3>오늘의 사진</h3>
+                            <div className="log-image-display" style={{ height: '300px' }}>
+                                <img src={photo_url} alt="User Upload" />
+                            </div>
+                        </div>
+
+                        {/* 오른쪽 페이지: 일지 내용 */}
+                        <div className="book-page">
+                            <h3>나의 포켓몬 일지</h3>
+                            <p style={{ fontSize: '14px', color: '#777' }}>{formattedDate}</p>
+
+                            <div className="pokemon-info">
+                                <p style={{ fontWeight: 'normal', color: '#555' }}>조우 포켓몬</p>
+                                <img src={pokemon.sprite_url} alt={pokemon.name} />
+                                <p style={{ marginTop: '5px' }}>{pokemon.name} ({pokemon.type_1})</p>
+                            </div>
+
+                            <h4 style={{ fontSize: '16px', borderBottom: '1px dashed #ccc', paddingBottom: '5px', color: '#555' }}>오늘의 소감</h4>
+                            <p className="reflection-content">{user_reflection}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default DiaryDetailScreen;
