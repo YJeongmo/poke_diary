@@ -36,11 +36,13 @@ export interface DiaryDetail {
 
 export interface PokedexEntry {
   poke_id: number;
+  sinnoh_poke_id?: number;
   name: string;
   type_1: string;
+  type_2?: string | null;
   sprite_url: string;
   encountered: boolean;
-  encounter_count: number;
+  encounter_count?: number;
 }
 
 export interface PokedexData {

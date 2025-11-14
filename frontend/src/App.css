@@ -45,12 +45,14 @@
   top: 30px;
   left: 30px;
   padding: 8px 15px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 4px;
   font-size: 16px;
-  color: #333;
+  color: #000;
   font-weight: bold;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
   z-index: 10;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 .page-title {
   position: absolute;
@@ -238,14 +240,13 @@
 
 /* --- Pokedex/Badge 공통 스타일 --- */
 .overlay-wrapper {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: transparent;
     padding: 30px;
     border-radius: 15px;
     width: 85%;
     max-width: 850px;
     height: 80%;
     margin-top: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     color: #333;
     text-shadow: none;
     display: flex;
@@ -260,30 +261,47 @@
 .grid-area {
     height: 100%;
     overflow-y: auto;
-    padding: 10px;
+    padding: 10px 0;
 }
 
 /* --- Pokedex (도감) 스타일 --- */
 .pokedex-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(5, auto);
+    row-gap: 10px;
+    column-gap: 25px;
+    width: fit-content;
+    margin: 0 auto;
 }
 .pokedex-card {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background-color: rgba(240, 240, 240, 0.8);
+    border: 1px solid rgba(204, 204, 204, 0.8);
     border-radius: 5px;
     padding: 8px;
     height: 130px;
+    width: 90px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     text-align: center;
+    position: relative;
 }
 .pokedex-card.locked {
-    background-color: #ddd;
-    opacity: 0.6;
+    background-color: rgba(221, 221, 221, 0.6);
+    border: 1px solid rgba(204, 204, 204, 0.6);
+    opacity: 0.8;
+    color: #888;
+}
+.pokedex-card .sinnoh_poke_id {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+.pokedex-card.locked .sinnoh_poke_id {
     color: #888;
 }
 .pokedex-card.locked .placeholder {
@@ -292,11 +310,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
 }
-.pokedex-card img {
-    width: 60px;
-    height: 60px;
+.pokedex-card .pokemon-sprite {
+    width: 100px;
+    height: 100px;
     object-fit: contain;
+    margin-top: 10px;
+}
+.pokedex-card .pokemon-name {
+    font-size: 11px;
+    margin-top: 5px;
+    color: #333;
+}
+.pokedex-card.locked .pokemon-name {
+    color: #888;
+}
+.pokedex-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
 }
 .pokedex-pagination button {
     padding: 8px 15px;
