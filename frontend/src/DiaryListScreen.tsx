@@ -97,6 +97,7 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
     const [reflection, setReflection] = useState('');
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -149,6 +150,35 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
         setPageIndex((i) => Math.min(logs.length, i + 1));
     };
 
+    // 드래그 앤 드롭 핸들러
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                setImageFile(file);
+            } else {
+                setSubmitError('이미지 파일만 업로드 가능합니다.');
+            }
+        }
+    };
+
     const backgroundStyle = getBackgroundStyle(imageType);
 
     console.log('DiaryListScreen: Render - loading:', loading, 'error:', error, 'logs.length:', logs.length, 'pageIndex:', pageIndex);
@@ -176,6 +206,15 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
             <button className="back-button" onClick={() => onNavigate('main')}>← 메인으로</button>
 
             <div className="diary-book-wrapper">
+                {/* 이전 버튼 - 화면 좌측 중간 */}
+                <button
+                    onClick={goPrev}
+                    disabled={!canGoPrev}
+                    className="book-nav-button book-nav-button-left"
+                >
+                    이전
+                </button>
+
                 <div className="book-ui">
                     {/* 페이지 번호 표시 */}
                     <div className="book-navigation">
@@ -226,14 +265,6 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                     })()
                                 )}
                             </div>
-                            {/* 이전 버튼 */}
-                            <button
-                                onClick={goPrev}
-                                disabled={!canGoPrev}
-                                className="book-nav-button book-nav-button-left"
-                            >
-                                이전
-                            </button>
                         </div>
 
                         {/* 오른쪽 페이지: 일지 내용 */}
@@ -250,7 +281,25 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                             {format(new Date(), 'yyyy.MM.dd')}
                                         </div>
                                         <form onSubmit={handleSubmit} className="form-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            <div>
+                                            <div
+                                                onDragOver={handleDragOver}
+                                                onDragLeave={handleDragLeave}
+                                                onDrop={handleDrop}
+                                                style={{
+                                                    border: `2px dashed ${isDragging ? '#3498db' : '#ccc'}`,
+                                                    borderRadius: '8px',
+                                                    padding: '12px 16px',
+                                                    textAlign: 'center',
+                                                    backgroundColor: isDragging ? '#f0f8ff' : 'transparent',
+                                                    transition: 'all 0.3s ease',
+                                                    cursor: 'pointer',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    width: 'fit-content'
+                                                }}
+                                                onClick={() => fileInputRef.current?.click()}
+                                            >
                                                 <input
                                                     type="file"
                                                     ref={fileInputRef}
@@ -261,14 +310,20 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                                 <label
                                                     htmlFor="file-upload"
                                                     className="custom-file-input"
-                                                    onClick={() => fileInputRef.current?.click()}
+                                                    style={{ cursor: 'pointer', display: 'inline-block', margin: 0 }}
+                                                    onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    파일 선택
+                                                    파일선택
                                                 </label>
-                                                <span style={{ marginLeft: '10px', color: '#555' }}>
-                                                    선택된 파일: {imageFile ? imageFile.name : '없음'}
+                                                <span style={{ fontSize: '14px', color: '#666' }}>
+                                                    혹은 드래그
                                                 </span>
                                             </div>
+                                            {imageFile && (
+                                                <div style={{ fontSize: '14px', color: '#555', marginTop: '4px' }}>
+                                                    선택된 파일: {imageFile.name}
+                                                </div>
+                                            )}
                                             <div>
                                                 <textarea
                                                     value={reflection}
@@ -304,14 +359,11 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                                         src={detail.pokemon.sprite_url}
                                                         alt={detail.pokemon.name}
                                                         className="pokemon-sprite"
-                                                        style={{ width: 120, height: 120 }}
+                                                        style={{ width: 150, height: 150 }}
                                                     />
                                                     <p className="pokemon-name-large">
                                                         <strong>{detail.pokemon.name}</strong> ({detail.pokemon.type_1})
                                                     </p>
-                                                </div>
-                                                <div className="analysis-summary" style={{ marginTop: 12 }}>
-                                                    <strong>{detail.analysis.location}</strong> / {detail.analysis.environment} / {detail.analysis.time} / {detail.analysis.season}
                                                 </div>
                                                 <div className="reflection-section" style={{ marginTop: 16 }}>
                                                     <h3>오늘의 소감</h3>
@@ -322,17 +374,18 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                     })()
                                 )}
                             </div>
-                            {/* 다음 버튼 */}
-                            <button
-                                onClick={goNext}
-                                disabled={!canGoNext}
-                                className="book-nav-button book-nav-button-right"
-                            >
-                                다음
-                            </button>
                         </div>
                     </div>
                 </div>
+
+                {/* 다음 버튼 - 화면 우측 중간 */}
+                <button
+                    onClick={goNext}
+                    disabled={!canGoNext}
+                    className="book-nav-button book-nav-button-right"
+                >
+                    다음
+                </button>
             </div>
         </div>
     );
