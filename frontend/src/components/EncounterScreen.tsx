@@ -131,15 +131,7 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
                  // const response = await api.get(`/logs/${logId}`, token);
                  // setDetail(response.data as DiaryDetail);
 
-                 // ⭐ 임시 더미 데이터 (UI 예시 이미지 6 기반)
-                 const dummyDetail: DiaryDetail = {
-                     log_id: logId,
-                     created_at: "2025-11-12T10:30:00",
-                     user_reflection: "카페에 와서 아메리카노를 마셨다. 문득 창 밖을 보는데 단풍이 예쁘게 들어있었다.",
-                     photo_url: "http://localhost:8000/uploads/dummy/apartment.jpg", // 임시 이미지 URL
-                     analysis: { location: "카페/도시", environment: "맑음", time: "낮", season: "가을" },
-                     pokemon: { name: "왕자리", sprite_url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/330.png", type_1: "벌레/비행", poke_id: 330 },
-                 };
+
                  setDetail(dummyDetail);
              } catch (error) {
                  console.error("Failed to fetch diary detail:", error);
@@ -194,7 +186,6 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
                             <p className="reflection-content">{user_reflection}</p>
                         </div>
                     </div>
-                    {/* 네비게이션 버튼은 생략 (DiaryBook.tsx에서 구현 예정) */}
                 </div>
             </div>
         </div>
