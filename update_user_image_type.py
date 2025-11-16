@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-기존 사용자의 image_type을 'pretty'로 업데이트하는 스크립트
+기존 사용자의 image_type을 'charming'으로 업데이트하는 스크립트
 """
 import sqlite3
 import os
@@ -38,9 +38,9 @@ if user:
     print(f"  Image Type: {user[2]}")
     
     # image_type 업데이트
-    cursor.execute("UPDATE user SET image_type = ? WHERE email = ?", ("pretty", "test1@a.b"))
+    cursor.execute("UPDATE user SET image_type = ? WHERE email = ?", ("charming", "test1@a.b"))
     conn.commit()
-    print(f"\n✅ 사용자 '{user[1]}'의 image_type을 'pretty'로 업데이트했습니다.")
+    print(f"\n✅ 사용자 '{user[1]}'의 image_type을 'charming'으로 업데이트했습니다.")
 else:
     print("사용자 'test1@a.b'를 찾을 수 없습니다.")
 

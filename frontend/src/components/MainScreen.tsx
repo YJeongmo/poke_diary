@@ -28,8 +28,8 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
             case 'lucario':
                 // Lucario 타입: b_Lucario 이미지 사용
                 return `${ASSET_BASE_URL}/b_Lucario.png`;
-            case 'pretty':
-                // Pretty 타입: c_Pretty 이미지 사용
+            case 'charming':
+                // Charming 타입: c_Pretty 이미지 사용
                 return `${ASSET_BASE_URL}/c_Pretty.png`;
             default:
                 return null;

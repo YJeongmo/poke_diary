@@ -3,7 +3,7 @@ export type ScreenName = 'encounter' | 'pokedex' | 'badges' | 'main' | 'diary_li
 export interface User {
   id: number;
   email: string;
-  image_type: 'gardevoir' | 'lucario' | 'pretty' | null;
+  image_type: 'gardevoir' | 'lucario' | 'charming' | null;
   auth_code: string | null;
 }
 

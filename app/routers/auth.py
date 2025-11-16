@@ -41,15 +41,15 @@ def register_user(
     # 2. 인증코드 검증 및 이미지 타입 결정
     auth_code_lower = user_data.auth_code.lower()
 
-    # 인증코드는 접두어(gardevoir / lucario / pretty)에 의미를 두고,
+    # 인증코드는 접두어(gardevoir / lucario / charming)에 의미를 두고,
     # 뒤에 어떤 문자가 붙어도 해당 접두어로 정규화하여 저장합니다.
     canonical_code = None
     if "gardevoir" in auth_code_lower:
         canonical_code = "gardevoir"
     elif "lucario" in auth_code_lower:
         canonical_code = "lucario"
-    elif "pretty" in auth_code_lower:
-        canonical_code = "pretty"
+    elif "charming" in auth_code_lower:
+        canonical_code = "charming"
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

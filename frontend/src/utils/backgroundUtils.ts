@@ -16,7 +16,7 @@ function getBackgroundImage(imageType: string | null): string | null {
         case 'gardevoir':
         case 'lucario':
             return `${ASSET_BASE_URL}/background_ab.png`;
-        case 'pretty':
+        case 'charming':
             return `${ASSET_BASE_URL}/background_c.jpeg`;
         default:
             return null;
