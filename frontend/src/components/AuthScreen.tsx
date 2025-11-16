@@ -72,7 +72,7 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
         {isRegister && (
           <input
             type="text"
-            placeholder="CODE (인증코드: Gardevoir, Lucario, Pretty)"
+            placeholder="CODE (인증코드)"
             value={authCode}
             onChange={(e) => setAuthCode(e.target.value)}
             required

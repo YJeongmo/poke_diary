@@ -65,6 +65,9 @@ function AppContent() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // 배경/테마용 코드: 우선 auth_code, 없으면 image_type 사용
+  const themeCode: string | null = (user?.auth_code as string | null) || user?.image_type || null;
+
   // 각 화면 이동 함수
   const handleNavigate = (screen: ScreenName, id?: number) => {
     switch (screen) {
@@ -84,13 +87,13 @@ function AppContent() {
       <Route path="/auth" element={<AppWrapper><AuthScreen onLoginSuccess={() => navigate('/main')} /></AppWrapper>} />
 
       {/* 모든 화면을 .App 컨테이너로 감싸서 빨간색+파란색 테두리 영역에서 실행되도록 합니다. */}
-      <Route path="/" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/main" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/encounter" element={<PrivateRoute><AppWrapper><EncounterScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/pokedex" element={<PrivateRoute><AppWrapper><PokedexScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/badges" element={<PrivateRoute><AppWrapper><BadgeScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/diary_list" element={<PrivateRoute><AppWrapper><DiaryListScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
-      <Route path="/diary_book/:logId" element={<PrivateRoute><AppWrapper><DiaryDetailScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={user?.image_type || null} /></AppWrapper></PrivateRoute>} />
+      <Route path="/" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/main" element={<PrivateRoute><AppWrapper><MainScreen onNavigate={handleNavigate} onLogout={logout} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/encounter" element={<PrivateRoute><AppWrapper><EncounterScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/pokedex" element={<PrivateRoute><AppWrapper><PokedexScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/badges" element={<PrivateRoute><AppWrapper><BadgeScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/diary_list" element={<PrivateRoute><AppWrapper><DiaryListScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
+      <Route path="/diary_book/:logId" element={<PrivateRoute><AppWrapper><DiaryDetailScreen onNavigate={handleNavigate} userEmail={user?.email || null} imageType={themeCode} /></AppWrapper></PrivateRoute>} />
     </Routes>
   );
 }

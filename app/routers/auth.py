@@ -61,7 +61,8 @@ def register_user(
     new_user = User(
         email=user_data.email,
         hashed_password=hashed_password,
-        image_type=image_type
+        image_type=image_type,
+        auth_code=user_data.auth_code  # 회원가입 시 사용한 인증코드도 함께 보존
     )
 
     session.add(new_user)
@@ -117,5 +118,11 @@ def get_current_user_info(
 ):
     """
     현재 로그인한 사용자의 정보를 조회합니다.
+    auth_code는 배경/테마 설정 용도로만 사용하며, 화면에는 직접 노출하지 않습니다.
     """
-    return UserResponse(id=current_user.id, email=current_user.email, image_type=current_user.image_type)
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        image_type=current_user.image_type,
+        auth_code=current_user.auth_code,
+    )

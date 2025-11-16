@@ -25,6 +25,7 @@ class UserResponse(SQLModel):
     id: int
     email: str
     image_type: Optional[str] = None
+    auth_code: Optional[str] = None
 
 # --- DiaryList.tsx 에서 사용될 스키마 ---
 class LogListItem(BaseModel):

@@ -71,7 +71,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #000000;
+    /* 로그인/회원가입 화면 배경 이미지 (dp_map) */
+    background-image: url('http://localhost:8000/useImage/dp_map.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .auth-wrapper {
     background-color: #f8f8f8;

@@ -12,6 +12,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True) # 사용자 이메일 (로그인 ID)
     hashed_password: str # 해시된 비밀번호 저장
     image_type: Optional[str] = Field(default=None) # 홈 화면 이미지 타입 (gardevoir, lucario, pretty)
+    auth_code: Optional[str] = Field(default=None)  # 회원가입 시 사용한 인증코드 보존용
 
     # 사용자 기록과 연결
     logs: List["DailyEncounterLog"] = Relationship(back_populates="user")

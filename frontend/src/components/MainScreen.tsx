@@ -23,12 +23,14 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
 
         switch (imageType.toLowerCase()) {
             case 'gardevoir':
+                // Gardevoir 타입: A_Gardevoir 이미지 사용
+                return `${BASE_URL}/A_Gardevoir.png`;
             case 'lucario':
-                // UI 예시 이미지에는 책 표지가 보임. Gardevoir/Lucario 타입의 책 이미지로 설정
-                return `${BASE_URL}/a_Gardevoir.png`;
-            case 'pretty':
-                // Pretty 타입의 책 이미지로 설정 (임시로 Lucario와 동일하게 설정)
+                // Lucario 타입: b_Lucario 이미지 사용
                 return `${BASE_URL}/b_Lucario.png`;
+            case 'pretty':
+                // Pretty 타입: c_Pretty 이미지 사용
+                return `${BASE_URL}/c_Pretty.png`;
             default:
                 return null;
         }

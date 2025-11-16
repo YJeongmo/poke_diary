@@ -4,6 +4,7 @@ export interface User {
   id: number;
   email: string;
   image_type: 'gardevoir' | 'lucario' | 'pretty' | null;
+  auth_code: string | null;
 }
 
 export interface LogEntry {
