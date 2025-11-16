@@ -1,7 +1,7 @@
 # pokemon-fastapi-project/app/services/badge_service.py
 
 from sqlmodel import Session, select, func
-from app.models import DailyEncounterLog, Pokemon
+from app.models import DailyEncounterLog, Pokemon, User
 from typing import Dict, List, Tuple
 
 # 뱃지 조건 정의 (요청하신 세부사항 기반)
@@ -49,6 +49,10 @@ class BadgeService:
         # 총 기록 수 (중복 포함)
         total_encounters = self.session.exec(total_encounters_stmt).one()
 
+        # 1-1. 전체 포켓몬 수 (도감 기준)
+        total_pokemon_stmt = select(func.count()).select_from(Pokemon)
+        total_pokemon_count = self.session.exec(total_pokemon_stmt).one()
+
         # 2. 유니크 조우 포켓몬 수 계산 (도감 완성도 기준)
         unique_encountered_stmt = select(
             func.count(DailyEncounterLog.pokemon_id.distinct())
@@ -56,6 +60,13 @@ class BadgeService:
             DailyEncounterLog.user_id == user_id
         )
         total_unique_count = self.session.exec(unique_encountered_stmt).one()
+
+        # 2-1. admin 계정(admin@poke.dp)은 테스트 편의를 위해
+        # 전체 포켓몬을 모두 조우한 것으로 간주하여 뱃지를 모두 획득한 상태로 표시
+        user = self.session.get(User, user_id)
+        if user and user.email == "admin@poke.dp":
+            total_unique_count = total_pokemon_count
+            total_encounters = total_pokemon_count
 
         # 3. 뱃지 획득 여부 판단
         badges_status = []
@@ -95,6 +106,11 @@ class BadgeService:
         for pokemon in encountered_pokemons:
             for type_name in filter(None, [pokemon.type_1, pokemon.type_2]):
                 type_counts[type_name] += 1
+
+        # admin 계정은 타입별로도 모든 포켓몬을 조우한 것으로 간주
+        if user and user.email == "admin@poke.dp":
+            for type_name, total in type_totals.items():
+                type_counts[type_name] = total
 
         for config in TYPE_BADGE_CONFIG:
             type_key = config["type_key"]

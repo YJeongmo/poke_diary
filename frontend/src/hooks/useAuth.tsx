@@ -54,6 +54,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = (accessToken: string) => {
+    // 새 로그인 시에도 사용자 정보를 다시 가져오기 위해 로딩 상태로 전환
+    setIsLoading(true);
     localStorage.setItem(TOKEN_STORAGE_KEY, accessToken);
     setToken(accessToken);
     fetchUser(accessToken);

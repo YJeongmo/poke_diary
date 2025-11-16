@@ -23,11 +23,16 @@ class PokedexService:
         # Set으로 변환하여 조회 효율 최적화
         encountered_ids: Set[int] = set(self.session.exec(encountered_ids_stmt).all())
 
-        # ⭐️⭐️⭐️ 2. 모든 포켓몬을 신오 도감 번호 순으로 한 번만 가져오기 ⭐️⭐️⭐️
+        # 2. 모든 포켓몬을 신오 도감 번호 순으로 한 번만 가져오기
         all_pokemons_stmt = select(Pokemon).order_by(
             Pokemon.sinnoh_poke_id
         )
         all_pokemons = self.session.exec(all_pokemons_stmt).all()
+
+        # 2-1. admin 계정(admin@poke.dp)은 모든 포켓몬을 조우한 것으로 처리
+        user = self.session.get(User, user_id)
+        if user and user.email == "admin@poke.dp":
+            encountered_ids = {poke.id for poke in all_pokemons}
 
         pokedex_list = []
         total_unique_count = 0
