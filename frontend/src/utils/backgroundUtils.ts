@@ -12,15 +12,20 @@ const ASSET_BASE_URL =
 function getBackgroundImage(imageType: string | null): string | null {
     if (!imageType) return null;
 
-    switch (imageType.toLowerCase()) {
-        case 'gardevoir':
-        case 'lucario':
-            return `${ASSET_BASE_URL}/background_ab.png`;
-        case 'charming':
-            return `${ASSET_BASE_URL}/background_c.jpeg`;
-        default:
-            return null;
+    const code = imageType.toLowerCase();
+
+    // 내부 코드(type_1/2/3)만 사용
+    if (code === 'type_1') {
+        return `${ASSET_BASE_URL}/background_ab.png`;
     }
+    if (code === 'type_2') {
+        return `${ASSET_BASE_URL}/background_ab.png`;
+    }
+    if (code === 'type_3') {
+        return `${ASSET_BASE_URL}/background_c.jpeg`;
+    }
+
+    return null;
 }
 
 /**

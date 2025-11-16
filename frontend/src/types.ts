@@ -3,7 +3,9 @@ export type ScreenName = 'encounter' | 'pokedex' | 'badges' | 'main' | 'diary_li
 export interface User {
   id: number;
   email: string;
-  image_type: 'gardevoir' | 'lucario' | 'charming' | null;
+  // 백엔드에서 사용하는 내부 이미지 타입 (type_1 / type_2 / type_3)
+  // 과거 데이터 호환을 위해 문자열 전체를 허용합니다.
+  image_type: string | null;
   auth_code: string | null;
 }
 

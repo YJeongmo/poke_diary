@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 from typing import Annotated
+import os
 
 from app.database import get_session
 from app.models import User
@@ -16,6 +17,56 @@ from app.security import (
 )
 
 router = APIRouter()
+
+# --- 인증 코드 → 내부 타입 매핑 설정 ---
+#
+# .env 예시:
+#   TYPE_1_CODES=gardevoir,g
+#   TYPE_2_CODES=lucario,l
+#   TYPE_3_CODES=charming,c,pretty
+#
+# 위 값이 없으면 기본값(gardevoir / lucario / charming)을 사용합니다.
+
+TYPE_1_CODES = [
+    code.strip()
+    for code in os.getenv("TYPE_1_CODES", "gardevoir").split(",")
+    if code.strip()
+]
+TYPE_2_CODES = [
+    code.strip()
+    for code in os.getenv("TYPE_2_CODES", "lucario").split(",")
+    if code.strip()
+]
+TYPE_3_CODES = [
+    code.strip()
+    for code in os.getenv("TYPE_3_CODES", "charming").split(",")
+    if code.strip()
+]
+
+
+def normalize_auth_code(auth_code_raw: str) -> str:
+    """
+    사용자가 입력한 인증코드를 기반으로 내부 이미지 타입을 정규화합니다.
+
+    - TYPE_1_CODES  → "type_1"
+    - TYPE_2_CODES  → "type_2"
+    - TYPE_3_CODES  → "type_3"
+
+    코드 내에 해당 문자열이 포함(in)되어 있으면 매칭됩니다.
+    """
+    code = auth_code_raw.lower()
+
+    if any(key in code for key in TYPE_1_CODES):
+        return "type_1"
+    if any(key in code for key in TYPE_2_CODES):
+        return "type_2"
+    if any(key in code for key in TYPE_3_CODES):
+        return "type_3"
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="인증코드가 올바르지 않습니다.",
+    )
 
 # --- 1. 회원가입 엔드포인트 ---
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -39,22 +90,9 @@ def register_user(
         )
 
     # 2. 인증코드 검증 및 이미지 타입 결정
-    auth_code_lower = user_data.auth_code.lower()
-
-    # 인증코드는 접두어(gardevoir / lucario / charming)에 의미를 두고,
-    # 뒤에 어떤 문자가 붙어도 해당 접두어로 정규화하여 저장합니다.
-    canonical_code = None
-    if "gardevoir" in auth_code_lower:
-        canonical_code = "gardevoir"
-    elif "lucario" in auth_code_lower:
-        canonical_code = "lucario"
-    elif "charming" in auth_code_lower:
-        canonical_code = "charming"
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="인증코드가 올바르지 않습니다."
-        )
+    #    환경변수(TYPE_1_CODES / TYPE_2_CODES / TYPE_3_CODES)를 기반으로
+    #    type_1 / type_2 / type_3 중 하나로 정규화합니다.
+    canonical_code = normalize_auth_code(user_data.auth_code)
 
     # 3. 비밀번호 해싱
     hashed_password = get_password_hash(user_data.password)
@@ -63,8 +101,8 @@ def register_user(
     new_user = User(
         email=user_data.email,
         hashed_password=hashed_password,
-        image_type=canonical_code,   # 이미지 타입도 정규화된 코드 사용
-        auth_code=canonical_code     # 회원가입 시 사용한 인증코드를 접두어 형태로 보존
+        image_type=canonical_code,   # 이미지 타입도 정규화된 코드 사용 (type_1 / type_2 / type_3)
+        auth_code=canonical_code     # 회원가입 시 사용한 인증코드(내부 코드)를 보존
     )
 
     session.add(new_user)

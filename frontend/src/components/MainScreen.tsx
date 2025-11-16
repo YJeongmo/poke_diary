@@ -21,19 +21,20 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
     const getDiaryButtonImage = () => {
         if (!imageType) return null;
 
-        switch (imageType.toLowerCase()) {
-            case 'gardevoir':
-                // Gardevoir 타입: A_Gardevoir 이미지 사용
-                return `${ASSET_BASE_URL}/A_Gardevoir.png`;
-            case 'lucario':
-                // Lucario 타입: b_Lucario 이미지 사용
-                return `${ASSET_BASE_URL}/b_Lucario.png`;
-            case 'charming':
-                // Charming 타입: c_Pretty 이미지 사용
-                return `${ASSET_BASE_URL}/c_Pretty.png`;
-            default:
-                return null;
+        const code = imageType.toLowerCase();
+
+        // 내부 코드(type_1/2/3)만 사용
+        if (code === 'type_1') {
+            return `${ASSET_BASE_URL}/A_Gardevoir.png`;
         }
+        if (code === 'type_2') {
+            return `${ASSET_BASE_URL}/b_Lucario.png`;
+        }
+        if (code === 'type_3') {
+            return `${ASSET_BASE_URL}/c_Pretty.png`;
+        }
+
+        return null;
     };
 
     const diaryImage = getDiaryButtonImage();
