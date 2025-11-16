@@ -130,8 +130,12 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
             setReflection('');
             // 작성 완료 후에도 마지막 페이지(작성 페이지)로 이동
             setPageIndex(ascending.length);
-        } catch (err) {
-            setSubmitError(`오류 발생: ${err instanceof Error ? err.message : '알 수 없는 오류'}`);
+        } catch (err: any) {
+            // 백엔드에서 전달한 상세 메시지가 있으면 그대로 표시
+            const detail =
+                err?.response?.data?.detail ||
+                (err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+            setSubmitError(detail);
         } finally {
             setSubmitLoading(false);
         }

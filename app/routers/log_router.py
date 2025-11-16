@@ -90,14 +90,32 @@ async def create_daily_encounter_log(
     인증된 사용자만 사진을 분석하고 조우 기록을 저장할 수 있습니다.
     """
     try:
-        # 1. 이미지 읽기 (한 번만 읽고 재사용)
+        # 1. 금일 일지 작성 횟수 제한 확인 (하루 최대 3회)
+        today = datetime.utcnow().date()
+        # 하루 시작/끝 범위 계산 (UTC 기준)
+        start_of_day = datetime.combine(today, datetime.min.time())
+        end_of_day = datetime.combine(today, datetime.max.time())
+
+        today_count_stmt = select(func.count()).where(
+            DailyEncounterLog.user_id == current_user.id,
+            DailyEncounterLog.created_at >= start_of_day,
+            DailyEncounterLog.created_at <= end_of_day,
+        )
+        today_count = session.exec(today_count_stmt).one()
+        if today_count >= 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="일지작성은 일일 3회까지만 할 수 있습니다."
+            )
+
+        # 2. 이미지 읽기 (한 번만 읽고 재사용)
         image_bytes = await image_file.read()
         
-        # 2. 이미지 분석
+        # 3. 이미지 분석
         base64_image = base64.b64encode(image_bytes).decode('utf-8')
         analysis_result = get_image_analysis(base64_image)
 
-        # 3. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
+        # 4. ⭐️⭐️⭐️ 조우 로직 위임 ⭐️⭐️⭐️
         encountered_pokemon = select_weighted_pokemon(
             analysis_result,
             user_reflection,
@@ -107,7 +125,7 @@ async def create_daily_encounter_log(
         if encountered_pokemon is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="포켓몬 데이터를 찾을 수 없습니다.")
 
-        # 4. 이미지 저장
+        # 5. 이미지 저장
         # uploads/{user_id}/ 폴더 구조 생성
         uploads_dir = Path("uploads")
         user_dir = uploads_dir / str(current_user.id)
@@ -123,10 +141,10 @@ async def create_daily_encounter_log(
         with open(file_path, "wb") as f:
             f.write(image_bytes)
         
-        # photo_url 생성: /uploads/{user_id}/{filename}
+        # 6. photo_url 생성: /uploads/{user_id}/{filename}
         photo_url = f"/uploads/{current_user.id}/{filename}"
 
-        # 5. Log 모델 생성 및 DB에 저장
+        # 7. Log 모델 생성 및 DB에 저장
         new_log_data = DailyEncounterLogBase(
             # Log 모델 키와 GPT 분석 결과 키가 일치해야 함 (location_gpt, season_gpt 등)
             **analysis_result, # ⭐️ 분석 결과를 바로 언패킹하여 사용 ⭐️
