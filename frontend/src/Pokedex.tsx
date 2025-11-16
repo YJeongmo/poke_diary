@@ -1,5 +1,5 @@
 // frontend/src/Pokedex.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';

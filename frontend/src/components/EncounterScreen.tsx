@@ -1,7 +1,8 @@
 // frontend/src/components/EncounterScreen.tsx
-import React, { useState, FormEvent, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { getBackgroundStyle } from '../utils/backgroundUtils';
-import type { ScreenName } from '../types';
+import type { ScreenName, DiaryDetail } from '../types';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 
@@ -116,7 +117,15 @@ function EncounterScreen({ onNavigate, imageType }: EncounterScreenProps) {
 
 // 기록 후 화면 (이미지 6)
 // EncounterScreen에 포함하여 재사용성을 높입니다.
-function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, onNavigate: EncounterScreenProps['onNavigate'], imageType: string | null }) {
+function DiaryDetailScreen({
+    logId,
+    onNavigate,
+    imageType,
+}: {
+    logId: number;
+    onNavigate: EncounterScreenProps['onNavigate'];
+    imageType: string | null;
+}) {
     const [detail, setDetail] = useState<DiaryDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const { token } = useAuth();
@@ -125,19 +134,18 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
     // 임시 더미 데이터와 로딩 로직을 사용합니다.
     useEffect(() => {
         const fetchDetail = async () => {
-             if (!token) return;
-             try {
-                 // 실제 API 호출 (백엔드 구현 후 사용)
-                 // const response = await api.get(`/logs/${logId}`, token);
-                 // setDetail(response.data as DiaryDetail);
+            if (!token) return;
+            try {
+                // 실제 API 호출 (백엔드 구현 후 사용)
+                // const response = await api.get(`/logs/${logId}`, token);
+                // setDetail(response.data as DiaryDetail);
 
-
-                 setDetail(dummyDetail);
-             } catch (error) {
-                 console.error("Failed to fetch diary detail:", error);
-             } finally {
-                 setLoading(false);
-             }
+                setDetail(dummyDetail);
+            } catch (error) {
+                console.error('Failed to fetch diary detail:', error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchDetail();
     }, [logId, token]);
@@ -145,20 +153,29 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
     const backgroundStyle = getBackgroundStyle(imageType);
 
     if (loading || !detail) {
-        return <div className="screen-container" style={backgroundStyle}>
-            <div className="book-wrapper"><div className="loading-spinner" /></div>
-        </div>;
+        return (
+            <div className="screen-container" style={backgroundStyle}>
+                <div className="book-wrapper">
+                    <div className="loading-spinner" />
+                </div>
+            </div>
+        );
     }
 
-    const { log_id, created_at, user_reflection, photo_url, pokemon } = detail;
+    const { created_at, user_reflection, photo_url, pokemon } = detail;
 
     return (
         <div className="screen-container" style={backgroundStyle}>
-            <button className="back-button" onClick={() => onNavigate('main')}>← 메인으로</button>
+            <button className="back-button" onClick={() => onNavigate('main')}>
+                ← 메인으로
+            </button>
             <div className="book-wrapper">
                 <div className="book-ui">
                     {/* 페이지네이션 (임시) */}
-                    <div className="book-navigation" style={{ position: 'absolute', top: '15px', color: '#333' }}>
+                    <div
+                        className="book-navigation"
+                        style={{ position: 'absolute', top: '15px', color: '#333' }}
+                    >
                         페이지 7 / 8
                     </div>
 
@@ -174,15 +191,40 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
                         {/* 오른쪽 페이지: 일지 내용 */}
                         <div className="book-page">
                             <h3>나의 포켓몬 일지</h3>
-                            <p style={{ fontSize: '14px', color: '#777' }}>{new Date(created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace(/\.$/, '')}</p>
+                            <p
+                                style={{
+                                    fontSize: '14px',
+                                    color: '#777',
+                                }}
+                            >
+                                {new Date(created_at)
+                                    .toLocaleDateString('ko-KR', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                    })
+                                    .replace(/\. /g, '.')
+                                    .replace(/\.$/, '')}
+                            </p>
 
                             <div className="pokemon-info">
                                 <p style={{ fontWeight: 'normal', color: '#555' }}>조우 포켓몬</p>
                                 <img src={pokemon.sprite_url} alt={pokemon.name} />
-                                <p style={{ marginTop: '5px' }}>{pokemon.name} ({pokemon.type_1.split('/')[0]})</p>
+                                <p style={{ marginTop: '5px' }}>
+                                    {pokemon.name} ({pokemon.type_1.split('/')[0]})
+                                </p>
                             </div>
 
-                            <h4 style={{ fontSize: '16px', borderBottom: '1px dashed #ccc', paddingBottom: '5px', color: '#555' }}>오늘의 소감</h4>
+                            <h4
+                                style={{
+                                    fontSize: '16px',
+                                    borderBottom: '1px dashed #ccc',
+                                    paddingBottom: '5px',
+                                    color: '#555',
+                                }}
+                            >
+                                오늘의 소감
+                            </h4>
                             <p className="reflection-content">{user_reflection}</p>
                         </div>
                     </div>
@@ -191,5 +233,26 @@ function DiaryDetailScreen({ logId, onNavigate, imageType }: { logId: number, on
         </div>
     );
 }
+
+// EncounterScreen에서 사용하는 임시 더미 데이터
+const dummyDetail: DiaryDetail = {
+    log_id: 0,
+    created_at: new Date().toISOString(),
+    user_reflection: '예시 소감입니다. 백엔드 API가 준비되면 실제 데이터를 보여줍니다.',
+    photo_url: 'https://via.placeholder.com/300x300.png?text=Diary+Preview',
+    analysis: {
+        location: '예시 장소',
+        environment: '맑음',
+        time: '낮',
+        season: '봄',
+    },
+    pokemon: {
+        name: '피카츄',
+        sprite_url:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+        type_1: '전기',
+        poke_id: 25,
+    },
+};
 
 export default EncounterScreen;

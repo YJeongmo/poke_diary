@@ -1,8 +1,8 @@
 // frontend/src/components/AuthScreen.tsx
-import React, { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 
 interface AuthScreenProps {
   onLoginSuccess: () => void;
@@ -16,7 +16,6 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { login: authLogin } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

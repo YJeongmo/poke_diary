@@ -1,5 +1,5 @@
 // frontend/src/BadgeScreen.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';
@@ -35,13 +35,13 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
                 
                 // 볼류 뱃지 5개를 먼저, 그 다음 타입별 뱃지 정렬
                 const ballBadgeOrder = ['몬스터볼', '프리미어볼', '슈퍼볼', '하이퍼볼', '마스터볼'];
-                const ballBadges = transformedBadges.filter(b => ballBadgeOrder.includes(b.name));
-                const typeBadges = transformedBadges.filter(b => !ballBadgeOrder.includes(b.name));
+                const ballBadges = transformedBadges.filter((b: Badge) => ballBadgeOrder.includes(b.name));
+                const typeBadges = transformedBadges.filter((b: Badge) => !ballBadgeOrder.includes(b.name));
                 
                 // 볼류 뱃지를 올바른 순서로 정렬
-                const sortedBallBadges = ballBadgeOrder.map(name => 
-                    ballBadges.find(b => b.name === name)
-                ).filter(Boolean) as Badge[];
+                const sortedBallBadges = ballBadgeOrder
+                    .map(name => ballBadges.find((b: Badge) => b.name === name))
+                    .filter(Boolean) as Badge[];
                 
                 const sortedBadges = [...sortedBallBadges, ...typeBadges];
                 
@@ -102,7 +102,7 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
                                     className={`badge-item ${badge.earned ? '' : 'locked'}`}
                                 >
                                     <div className="badge-icon">
-                                        <img src={badge.image_url || badge.badge_image} alt={badge.name} />
+                                        <img src={badge.image_url} alt={badge.name} />
                                     </div>
                                     <span className="badge-name">{displayName}</span>
                                     {badge.description && (

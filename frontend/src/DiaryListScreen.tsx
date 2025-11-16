@@ -1,5 +1,5 @@
 // frontend/src/DiaryListScreen.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
 import api from './utils/api';
@@ -119,8 +119,7 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
             formData.append('image_file', imageFile);
             formData.append('user_reflection', reflection);
 
-            const response = await api.postMultipart('/encounter', formData, token);
-            
+            await api.postMultipart('/encounter', formData, token);
             // 성공 시: 최신 목록으로 갱신하고 마지막 페이지(작성 페이지)로 이동
             const newListResponse = await api.get('/logs', token);
             const newLogItems: LogEntry[] = Array.isArray(newListResponse.data) ? newListResponse.data : [];

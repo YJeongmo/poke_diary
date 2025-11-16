@@ -1,5 +1,4 @@
 // frontend/src/components/MainScreen.tsx
-import React from 'react';
 import { getBackgroundStyle } from '../utils/backgroundUtils';
 import type { ScreenName } from '../types';
 

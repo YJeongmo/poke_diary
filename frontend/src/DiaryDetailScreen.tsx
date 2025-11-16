@@ -1,9 +1,8 @@
 // frontend/src/DiaryDetailScreen.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getBackgroundStyle } from './utils/backgroundUtils';
 import { useAuth } from './hooks/useAuth';
-import api from './utils/api';
 import type { DiaryDetail, ScreenName } from './types';
 import { format } from 'date-fns';
 
@@ -35,7 +34,6 @@ function DiaryDetailScreen({ onNavigate, imageType }: DiaryDetailScreenProps) {
                  // 실제 API 호출 (백엔드 구현 후 사용)
                  // const response = await api.get(`/logs/${logId}`, token);
                  // setDetail(response.data as DiaryDetail);
-
 
                  setDetail(dummyDetail);
              } catch (error) {
@@ -100,3 +98,24 @@ function DiaryDetailScreen({ onNavigate, imageType }: DiaryDetailScreenProps) {
 }
 
 export default DiaryDetailScreen;
+
+// DiaryDetailScreen에서 사용하는 임시 더미 데이터
+const dummyDetail: DiaryDetail = {
+    log_id: 0,
+    created_at: new Date().toISOString(),
+    user_reflection: '예시 소감입니다. 백엔드 API가 준비되면 실제 데이터를 보여줍니다.',
+    photo_url: 'https://via.placeholder.com/300x300.png?text=Diary+Preview',
+    analysis: {
+        location: '예시 장소',
+        environment: '맑음',
+        time: '낮',
+        season: '봄',
+    },
+    pokemon: {
+        name: '피카츄',
+        sprite_url:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+        type_1: '전기',
+        poke_id: 25,
+    },
+};
