@@ -50,7 +50,7 @@ origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
-    "http://3.37.62.3",  # EC2에서 프론트엔드가 서빙될 경우
+    "http://43.200.8.171",  # EC2에서 프론트엔드가 서빙될 경우
 ]
 
 app.add_middleware(
