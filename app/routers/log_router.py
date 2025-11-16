@@ -132,6 +132,10 @@ async def create_daily_encounter_log(
         img_stream = io.BytesIO()
         img = Image.open(io.BytesIO(image_bytes))
 
+        # 이미지 강제 RGB
+        if img.mode in ('RGBA', 'P'):
+            img = img.convert('RGB')
+
         # 이미지 크기 조정 (용량 절감을 위해 1000px 이하로 썸네일링)
         max_size = 1000
         if img.width > max_size or img.height > max_size:
