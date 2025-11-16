@@ -1,7 +1,7 @@
 // frontend/src/utils/backgroundUtils.ts
-import React from 'react';
+import type React from 'react';
 
-const BASE_URL = 'http://localhost:8000/useImage';
+const BASE_URL = 'http://43.200.8.171/useImage';
 
 /**
  * 사용자 image_type에 따라 배경 이미지 URL을 반환합니다.

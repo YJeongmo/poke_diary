@@ -49,13 +49,13 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
             } catch (error) {
                 console.error("Failed to fetch badges:", error);
                 // API 실패 시 임시 더미 데이터 (UI 예시와 유사하게)
-                const BASE_IMG = 'http://localhost:8000/useImage';
+                const BASE_IMG = 'http://43.200.8.171/useImage';
                 setBadges([
-                    { id: "몬스터볼", name: "몬스터볼", description: "", image_url: `${BASE_IMG}/몬스터볼.webp`, earned: true, earned_at: "2024-01-10" },
-                    { id: "프리미어볼", name: "프리미어볼", description: "", image_url: `${BASE_IMG}/프리미어볼.webp`, earned: true, earned_at: "2024-01-10" },
-                    { id: "슈퍼볼", name: "슈퍼볼", description: "", image_url: `${BASE_IMG}/슈퍼볼.webp`, earned: false, earned_at: null },
-                    { id: "하이퍼볼", name: "하이퍼볼", description: "", image_url: `${BASE_IMG}/하이퍼볼.webp`, earned: false, earned_at: null },
-                    { id: "마스터볼", name: "마스터볼", description: "", image_url: `${BASE_IMG}/마스터볼.webp`, earned: false, earned_at: null },
+                    { id: "몬스터볼", name: "몬스터볼", description: "", image_url: `${BASE_IMG}/monster_ball.webp`, earned: true, earned_at: "2024-01-10" },
+                    { id: "프리미어볼", name: "프리미어볼", description: "", image_url: `${BASE_IMG}/premier_ball.webp`, earned: true, earned_at: "2024-01-10" },
+                    { id: "슈퍼볼", name: "슈퍼볼", description: "", image_url: `${BASE_IMG}/super_ball.webp`, earned: false, earned_at: null },
+                    { id: "하이퍼볼", name: "하이퍼볼", description: "", image_url: `${BASE_IMG}/hyper_ball.webp`, earned: false, earned_at: null },
+                    { id: "마스터볼", name: "마스터볼", description: "", image_url: `${BASE_IMG}/master_ball.webp`, earned: false, earned_at: null },
                     { id: "풀 타입 마스터", name: "풀 타입 마스터", description: "", image_url: `${BASE_IMG}/type/풀.svg`, earned: false, earned_at: null },
                     { id: "불꽃 타입 마스터", name: "불꽃 타입 마스터", description: "", image_url: `${BASE_IMG}/type/불꽃.svg`, earned: false, earned_at: null },
                     { id: "물 타입 마스터", name: "물 타입 마스터", description: "", image_url: `${BASE_IMG}/type/물.svg`, earned: false, earned_at: null },

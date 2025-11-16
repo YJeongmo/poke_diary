@@ -6,11 +6,11 @@ from typing import Dict, List, Tuple
 
 # 뱃지 조건 정의 (요청하신 세부사항 기반)
 ENCOUNTER_BADGES = [
-    {"name": "몬스터볼", "threshold": 1, "description": "첫 번째 포켓몬 조우", "image": "몬스터볼.webp", "version": "1"},
-    {"name": "프리미어볼", "threshold": 10, "description": "10마리 조우 달성", "image": "프리미어볼.webp", "version": "1"},
-    {"name": "슈퍼볼", "threshold": 50, "description": "50마리 조우 달성", "image": "슈퍼볼.webp", "version": "1"},
-    {"name": "하이퍼볼", "threshold": 150, "description": "150마리 조우 달성", "image": "하이퍼볼.webp", "version": "1"},
-    {"name": "마스터볼", "threshold": 210, "description": "모든 포켓몬 조우 (도감 완성)", "image": "마스터볼.webp", "version": "2"},
+    {"name": "몬스터볼", "threshold": 1, "description": "첫 번째 포켓몬 조우", "image": "monster_ball.webp", "version": "1"},
+    {"name": "프리미어볼", "threshold": 10, "description": "10마리 조우 달성", "image": "premier_ball.webp", "version": "1"},
+    {"name": "슈퍼볼", "threshold": 50, "description": "50마리 조우 달성", "image": "super_ball.webp", "version": "1"},
+    {"name": "하이퍼볼", "threshold": 150, "description": "150마리 조우 달성", "image": "hyper_ball.webp", "version": "1"},
+    {"name": "마스터볼", "threshold": 210, "description": "모든 포켓몬 조우 (도감 완성)", "image": "master_ball.webp", "version": "2"},
 ]
 
 TYPE_BADGE_CONFIG = [
@@ -81,7 +81,7 @@ class BadgeService:
                 "current": total_unique_count,
                 "target": badge["threshold"],
                 "description": badge["description"],
-                "badge_image": f"http://localhost:8000/useImage/{badge['image']}{version_param}",
+                "badge_image": f"http://43.200.8.171/useImage/{badge['image']}{version_param}",
             })
 
         # 4. 타입별 뱃지 계산
@@ -124,7 +124,7 @@ class BadgeService:
                 "current": current_count,
                 "target": total_needed,
                 "description": config["description"],
-                "badge_image": f"http://localhost:8000/useImage/{config['image']}",
+                "badge_image": f"http://43.200.8.171/useImage/{config['image']}",
             })
 
         return {

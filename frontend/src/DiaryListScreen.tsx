@@ -252,7 +252,7 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                         const imageUrl = detail.photo_url 
                                             ? (detail.photo_url.startsWith('http') 
                                                 ? detail.photo_url 
-                                                : `http://localhost:8000${detail.photo_url}`)
+                                                : `http://43.200.8.171${detail.photo_url}`)
                                             : null;
                                         return imageUrl ? (
                                             <img

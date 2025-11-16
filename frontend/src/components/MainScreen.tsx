@@ -3,7 +3,7 @@ import { getBackgroundStyle } from '../utils/backgroundUtils';
 import type { ScreenName } from '../types';
 
 // 이미지 URL 상수
-const BASE_URL = 'http://localhost:8000/useImage';
+const BASE_URL = 'http://43.200.8.171/useImage';
 const POKEDEX_IMAGE = `${BASE_URL}/poke_dex.webp`;
 const BADGE_IMAGE = `${BASE_URL}/poke_badge.png`;
 
