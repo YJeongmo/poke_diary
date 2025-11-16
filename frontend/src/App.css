@@ -14,10 +14,10 @@
   transform-origin: center center;
 
   /* 빨간색(왼쪽/아래)과 파란색(위/오른쪽) 테두리 */
-  border-top: 4px solid blue;
-  border-right: 4px solid blue;
-  border-bottom: 4px solid red;
-  border-left: 4px solid red;
+  border-top: 4px solid #00b3ff;
+  border-right: 4px solid #00b3ff;
+  border-bottom: 4px solid #ff73b2;
+  border-left: 4px solid #ff73b2;
   
   transform: scale(1); /* 초기 로딩 시 깜빡임 방지 */
 }
@@ -237,7 +237,7 @@
     top: 50%;
     transform: translateY(-50%);
     padding: 12px 20px;
-    background-color: rgba(52, 152, 219, 0.9);
+    background-color: #ff73b2; /* 기본은 '이전' 버튼 색상 */
     color: white;
     border: none;
     border-radius: 8px;
@@ -249,7 +249,7 @@
     transition: background-color 0.3s;
 }
 .book-nav-button:hover:not(:disabled) {
-    background-color: rgba(52, 152, 219, 1);
+    filter: brightness(1.05);
 }
 .book-nav-button:disabled {
     background-color: rgba(170, 170, 170, 0.6);
@@ -260,6 +260,7 @@
 }
 .book-nav-button-right {
     right: 30px;
+    background-color: #00b3ff; /* '다음' 버튼 색상 */
 }
 .book-spread {
     width: 100%;
@@ -392,14 +393,23 @@
     gap: 15px;
     margin-top: 20px;
 }
+.pokedex-pagination span {
+    font-weight: 1000; /* 페이지 텍스트를 조금 더 두껍게 */
+    font-size: 20px;
+}
 .pokedex-pagination button {
     padding: 8px 15px;
-    background-color: #3498db;
+    background-color: #ff73b2; /* 기본 '이전' 버튼 색상 */
     color: white;
     border-radius: 5px;
 }
 .pokedex-pagination button:disabled {
     background-color: #aaa;
+}
+
+/* 도감 페이지네이션에서 두 번째 버튼(다음)을 파란색으로 */
+.pokedex-pagination button:nth-child(3) {
+    background-color: #00b3ff;
 }
 
 

@@ -40,14 +40,16 @@ def register_user(
 
     # 2. 인증코드 검증 및 이미지 타입 결정
     auth_code_lower = user_data.auth_code.lower()
-    image_type = None
-    
+
+    # 인증코드는 접두어(gardevoir / lucario / pretty)에 의미를 두고,
+    # 뒤에 어떤 문자가 붙어도 해당 접두어로 정규화하여 저장합니다.
+    canonical_code = None
     if "gardevoir" in auth_code_lower:
-        image_type = "gardevoir"
+        canonical_code = "gardevoir"
     elif "lucario" in auth_code_lower:
-        image_type = "lucario"
+        canonical_code = "lucario"
     elif "pretty" in auth_code_lower:
-        image_type = "pretty"
+        canonical_code = "pretty"
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -61,8 +63,8 @@ def register_user(
     new_user = User(
         email=user_data.email,
         hashed_password=hashed_password,
-        image_type=image_type,
-        auth_code=user_data.auth_code  # 회원가입 시 사용한 인증코드도 함께 보존
+        image_type=canonical_code,   # 이미지 타입도 정규화된 코드 사용
+        auth_code=canonical_code     # 회원가입 시 사용한 인증코드를 접두어 형태로 보존
     )
 
     session.add(new_user)
