@@ -49,7 +49,8 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
             } catch (error) {
                 console.error("Failed to fetch badges:", error);
                 // API 실패 시 임시 더미 데이터 (UI 예시와 유사하게)
-                const BASE_IMG = 'http://43.200.8.171/useImage';
+                const BASE_IMG =
+                    import.meta.env.VITE_ASSET_BASE_URL || 'http://localhost:8000/useImage';
                 setBadges([
                     { id: "몬스터볼", name: "몬스터볼", description: "", image_url: `${BASE_IMG}/monster_ball.webp`, earned: true, earned_at: "2024-01-10" },
                     { id: "프리미어볼", name: "프리미어볼", description: "", image_url: `${BASE_IMG}/premier_ball.webp`, earned: true, earned_at: "2024-01-10" },

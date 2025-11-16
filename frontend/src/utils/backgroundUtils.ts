@@ -1,7 +1,10 @@
 // frontend/src/utils/backgroundUtils.ts
 import type React from 'react';
 
-const BASE_URL = 'http://43.200.8.171/useImage';
+// 정적 이미지 기본 경로 (배경용)
+// VITE_ASSET_BASE_URL이 없으면 로컬 개발용 경로로 대체
+const ASSET_BASE_URL =
+  import.meta.env.VITE_ASSET_BASE_URL || 'http://localhost:8000/useImage';
 
 /**
  * 사용자 image_type에 따라 배경 이미지 URL을 반환합니다.
@@ -12,9 +15,9 @@ function getBackgroundImage(imageType: string | null): string | null {
     switch (imageType.toLowerCase()) {
         case 'gardevoir':
         case 'lucario':
-            return `${BASE_URL}/background_ab.png`;
+            return `${ASSET_BASE_URL}/background_ab.png`;
         case 'pretty':
-            return `${BASE_URL}/background_c.jpeg`;
+            return `${ASSET_BASE_URL}/background_c.jpeg`;
         default:
             return null;
     }

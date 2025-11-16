@@ -3,6 +3,9 @@
 from sqlmodel import Session, select, func
 from app.models import DailyEncounterLog, Pokemon, User
 from typing import Dict, List, Tuple
+import os
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
 # 뱃지 조건 정의 (요청하신 세부사항 기반)
 ENCOUNTER_BADGES = [
@@ -81,7 +84,7 @@ class BadgeService:
                 "current": total_unique_count,
                 "target": badge["threshold"],
                 "description": badge["description"],
-                "badge_image": f"http://43.200.8.171/useImage/{badge['image']}{version_param}",
+                "badge_image": f"{BASE_URL}/useImage/{badge['image']}{version_param}",
             })
 
         # 4. 타입별 뱃지 계산
@@ -124,7 +127,7 @@ class BadgeService:
                 "current": current_count,
                 "target": total_needed,
                 "description": config["description"],
-                "badge_image": f"http://43.200.8.171/useImage/{config['image']}",
+                "badge_image": f"{BASE_URL}/useImage/{config['image']}",
             })
 
         return {

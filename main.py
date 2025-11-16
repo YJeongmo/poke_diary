@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import httpx
 import os
+from dotenv import load_dotenv
 
 # 포켓몬 정보
 from app.database import create_db_and_tables
@@ -35,23 +36,29 @@ async def lifespan(app: FastAPI):
     print("FastAPI 서버 종료.")
 
 
+# 환경 변수 로드
+load_dotenv()
+
 # ===============================================
 # FastAPI 인스턴스 생성
 # ===============================================
 app = FastAPI(
     title="Pokemon Daily Log API",
     version="1.0.0",
-    lifespan=lifespan # 서버 시작 이벤트를 연결
+    lifespan=lifespan,  # 서버 시작 이벤트를 연결
 )
 
 # CORS 설정 (프론트엔드 연동을 위해 필요)
-# 로컬 개발용 도메인 + EC2에서 직접 프론트가 서빙될 경우의 도메인을 허용합니다.
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-    "http://43.200.8.171",  # EC2에서 프론트엔드가 서빙될 경우
-]
+# ALLOWED_ORIGINS 환경변수를 우선 사용하고, 없으면 로컬 개발용 도메인을 기본으로 사용합니다.
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+if allowed_origins_env:
+    origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+else:
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+    ]
 
 app.add_middleware(
     CORSMiddleware,

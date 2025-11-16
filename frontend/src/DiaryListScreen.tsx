@@ -12,6 +12,12 @@ interface DiaryListScreenProps {
     imageType: string | null;
 }
 
+// 백엔드 API의 origin (정적 업로드 이미지 prefix로 사용)
+// 예: VITE_API_URL=http://localhost:8000/api/v1  -> origin: http://localhost:8000
+const API_ORIGIN = new URL(
+    import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+).origin;
+
 function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
     console.log('DiaryListScreen: Component mounted!');
     const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -249,10 +255,10 @@ function DiaryListScreen({ onNavigate, imageType }: DiaryListScreenProps) {
                                         const detail = item ? detailCache[item.id] : undefined;
                                         if (!item) return <span />;
                                         if (!detail) return <span>이미지 로딩 중...</span>;
-                                        const imageUrl = detail.photo_url 
-                                            ? (detail.photo_url.startsWith('http') 
-                                                ? detail.photo_url 
-                                                : `http://43.200.8.171${detail.photo_url}`)
+                                        const imageUrl = detail.photo_url
+                                            ? detail.photo_url.startsWith('http')
+                                                ? detail.photo_url
+                                                : `${API_ORIGIN}${detail.photo_url}`
                                             : null;
                                         return imageUrl ? (
                                             <img

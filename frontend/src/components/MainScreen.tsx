@@ -2,10 +2,11 @@
 import { getBackgroundStyle } from '../utils/backgroundUtils';
 import type { ScreenName } from '../types';
 
-// 이미지 URL 상수
-const BASE_URL = 'http://43.200.8.171/useImage';
-const POKEDEX_IMAGE = `${BASE_URL}/poke_dex.webp`;
-const BADGE_IMAGE = `${BASE_URL}/poke_badge.png`;
+// 이미지 URL 상수 (환경변수 기반)
+const ASSET_BASE_URL =
+    import.meta.env.VITE_ASSET_BASE_URL || 'http://localhost:8000/useImage';
+const POKEDEX_IMAGE = `${ASSET_BASE_URL}/poke_dex.webp`;
+const BADGE_IMAGE = `${ASSET_BASE_URL}/poke_badge.png`;
 
 interface MainScreenProps {
     onNavigate: (screen: ScreenName) => void;
@@ -23,13 +24,13 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
         switch (imageType.toLowerCase()) {
             case 'gardevoir':
                 // Gardevoir 타입: A_Gardevoir 이미지 사용
-                return `${BASE_URL}/A_Gardevoir.png`;
+                return `${ASSET_BASE_URL}/A_Gardevoir.png`;
             case 'lucario':
                 // Lucario 타입: b_Lucario 이미지 사용
-                return `${BASE_URL}/b_Lucario.png`;
+                return `${ASSET_BASE_URL}/b_Lucario.png`;
             case 'pretty':
                 // Pretty 타입: c_Pretty 이미지 사용
-                return `${BASE_URL}/c_Pretty.png`;
+                return `${ASSET_BASE_URL}/c_Pretty.png`;
             default:
                 return null;
         }
