@@ -45,7 +45,13 @@ app = FastAPI(
 )
 
 # CORS 설정 (프론트엔드 연동을 위해 필요)
-origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+# 로컬 개발용 도메인 + EC2에서 직접 프론트가 서빙될 경우의 도메인을 허용합니다.
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://3.37.62.3",  # EC2에서 프론트엔드가 서빙될 경우
+]
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,7 +1,9 @@
 // frontend/src/utils/api.ts
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// 배포된 백엔드 서버 주소 (EC2 퍼블릭 IP 기준)
+// Nginx 등으로 80포트에 프록시된 경우 포트 없이 사용합니다.
+const API_BASE_URL = 'http://3.37.62.3/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
