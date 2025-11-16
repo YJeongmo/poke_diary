@@ -22,6 +22,13 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
     setError(null);
     setLoading(true);
 
+    // 클라이언트 측 간단 검증: 비밀번호 길이 체크
+    if (password.length < 6) {
+      setLoading(false);
+      setError('비밀번호는 최소 6자 이상이어야 합니다.');
+      return;
+    }
+
     try {
       if (isRegister) {
         // 회원가입
@@ -40,8 +47,19 @@ function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
         onLoginSuccess();
       }
     } catch (err: any) {
-      const detail = err.response?.data?.detail || '알 수 없는 오류가 발생했습니다.';
-      setError(detail);
+      const detail = err?.response?.data?.detail;
+
+      // FastAPI/Pydantic의 에러 포맷(detail 배열 또는 객체)을 사람이 읽을 수 있는 문자열로 변환
+      let message = '알 수 없는 오류가 발생했습니다.';
+
+      if (Array.isArray(detail) && detail.length > 0) {
+        // 예: [{ msg: "...", loc: [...], type: "string_too_short", ... }]
+        message = detail[0]?.msg || message;
+      } else if (typeof detail === 'string') {
+        message = detail;
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
