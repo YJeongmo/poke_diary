@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple
 
 # 뱃지 조건 정의 (요청하신 세부사항 기반)
 ENCOUNTER_BADGES = [
-    {"name": "몬스터볼", "threshold": 1, "description": "첫 번째 조우 포켓몬", "image": "몬스터볼.webp", "version": "1"},
+    {"name": "몬스터볼", "threshold": 1, "description": "첫 번째 포켓몬 조우", "image": "몬스터볼.webp", "version": "1"},
     {"name": "프리미어볼", "threshold": 10, "description": "10마리 조우 달성", "image": "프리미어볼.webp", "version": "1"},
     {"name": "슈퍼볼", "threshold": 50, "description": "50마리 조우 달성", "image": "슈퍼볼.webp", "version": "1"},
     {"name": "하이퍼볼", "threshold": 150, "description": "150마리 조우 달성", "image": "하이퍼볼.webp", "version": "1"},

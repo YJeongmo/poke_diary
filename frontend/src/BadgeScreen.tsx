@@ -92,17 +92,27 @@ function BadgeScreen({ onNavigate, imageType }: BadgeScreenProps) {
                     <div className="loading-spinner" />
                 ) : (
                     <div className="badge-grid">
-                        {badges.map(badge => (
-                            <div
-                                key={badge.id}
-                                className={`badge-item ${badge.earned ? '' : 'locked'}`}
-                            >
-                                <div className="badge-icon">
-                                    <img src={badge.image_url || badge.badge_image} alt={badge.name} />
+                        {badges.map(badge => {
+                            const ballBadgeOrder = ['몬스터볼', '프리미어볼', '슈퍼볼', '하이퍼볼', '마스터볼'];
+                            const isBallBadge = ballBadgeOrder.includes(badge.name);
+                            const displayName = isBallBadge ? `${badge.name} 등급` : badge.name;
+                            return (
+                                <div
+                                    key={badge.id}
+                                    className={`badge-item ${badge.earned ? '' : 'locked'}`}
+                                >
+                                    <div className="badge-icon">
+                                        <img src={badge.image_url || badge.badge_image} alt={badge.name} />
+                                    </div>
+                                    <span className="badge-name">{displayName}</span>
+                                    {badge.description && (
+                                        <span className="badge-description">
+                                            {badge.description}
+                                        </span>
+                                    )}
                                 </div>
-                                <span className="badge-name">{badge.name}</span>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

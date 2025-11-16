@@ -56,7 +56,7 @@ function MainScreen({ onNavigate, onLogout, userEmail, imageType }: MainScreenPr
         // MainScreen은 이제 .App 컨테이너 안에서 실행됩니다 (App.tsx에서 제공)
         <div className="screen-container main-screen-container" style={backgroundStyle}>
                 <div className="main-header">
-                    <h1 className="trainer-name">{userEmail || '트레이너'}님 ID표시</h1>
+                    <h1 className="trainer-name">{userEmail || '트레이너'}님 </h1>
                     <button onClick={onLogout} className="logout-button">로그아웃</button>
                 </div>
 
