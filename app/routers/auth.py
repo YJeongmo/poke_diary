@@ -53,7 +53,7 @@ def register_user(
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="인증코드가 올바르지 않습니다. 'Gardevoir', 'Lucario', 또는 'Pretty'가 포함되어야 합니다."
+            detail="인증코드가 올바르지 않습니다."
         )
 
     # 3. 비밀번호 해싱
