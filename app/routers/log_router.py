@@ -155,7 +155,7 @@ async def create_daily_encounter_log(
             img_stream,
             AWS_S3_BUCKET_NAME,
             s3_key,
-            ExtraArgs={'ContentType': 'image/jpeg', 'ACL': 'public-read'} # 웹 공개 설정
+            ExtraArgs={'ContentType': 'image/jpeg'} # 웹 공개 설정
         )
 
         # 6. photo_url 생성: 클라이언트가 접근할 S3 Public URL
