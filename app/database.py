@@ -1,14 +1,27 @@
 # pokemon-fastapi-project/app/database.py
 
 from sqlmodel import create_engine, Session, SQLModel
+from dotenv import load_dotenv
+import os
 
-# 프로젝트 루트에 'database.db' 파일을 생성합니다.
-# connect_args={"check_same_thread": False}는 SQLite 사용 시 FastAPI의 비동기 환경을 위해 필요합니다.
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+# .env 파일에서 환경 변수 로드
+load_dotenv()
 
-# 엔진 생성: 에코(Echo=True)를 켜면 SQL 쿼리를 터미널에서 볼 수 있어 개발에 유용합니다.
-engine = create_engine(sqlite_url, echo=True, connect_args={"check_same_thread": False})
+# DATABASE_URL 환경변수가 있으면 RDS(PostgreSQL) 사용, 없으면 SQLite 사용
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    # RDS(PostgreSQL) 사용
+    # PostgreSQL은 connect_args가 필요 없음
+    engine = create_engine(DATABASE_URL, echo=True)
+    print(f"✅ RDS(PostgreSQL) 연결: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'RDS'}")
+else:
+    # SQLite 사용 (로컬 개발용)
+    sqlite_file_name = "database.db"
+    sqlite_url = f"sqlite:///{sqlite_file_name}"
+    # connect_args={"check_same_thread": False}는 SQLite 사용 시 FastAPI의 비동기 환경을 위해 필요합니다.
+    engine = create_engine(sqlite_url, echo=True, connect_args={"check_same_thread": False})
+    print(f"✅ SQLite 연결: {sqlite_file_name}")
 
 def create_db_and_tables():
     """엔진에 바인딩된 모든 SQLModel 테이블을 생성합니다."""
