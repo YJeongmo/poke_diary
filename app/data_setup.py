@@ -1,8 +1,8 @@
 # pokemon-fastapi-project/app/data_setup.py
 
 import httpx
-from sqlmodel import select
-from app.database import SessionLocal
+from sqlmodel import select, Session
+from app.database import engine
 from app.models import Pokemon, PokemonBase
 import asyncio
 
@@ -1730,8 +1730,8 @@ async def init_pokemon_data():
     """
     FastAPI 시작 시 DB에 신오도감 포켓몬 데이터가 없으면 PokeAPI에서 가져와 저장합니다.
     """
-    with SessionLocal as session:
-        # DB에 포켓몬이 이미 있는지 확인
+    # DB에 포켓몬이 이미 있는지 확인
+    with Session(engine) as session:
         existing_pokemon = session.exec(select(Pokemon)).first()
         if existing_pokemon:
             print("INFO: 포켓몬 데이터가 이미 DB에 존재합니다. 초기 로드를 건너뜁니다.")
@@ -1749,7 +1749,7 @@ async def init_pokemon_data():
         details = await asyncio.gather(*detail_tasks)
 
         # DB에 저장
-        with SessionLocal as session:
+        with Session(engine) as session:
             for detail in details:
                 pokemon_data = PokemonBase(
                     poke_id=detail['poke_id'],

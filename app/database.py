@@ -11,10 +11,21 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    # RDS(PostgreSQL) 사용
-    # PostgreSQL은 connect_args가 필요 없음
-    engine = create_engine(DATABASE_URL, echo=True)
-    print(f"✅ RDS(PostgreSQL) 연결: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'RDS'}")
+    # RDS(PostgreSQL) 사용 확인
+    # DATABASE_URL이 postgresql:// 또는 postgres://로 시작하는지 확인
+    if DATABASE_URL.startswith(("postgresql://", "postgres://")):
+        # PostgreSQL은 connect_args가 필요 없음
+        engine = create_engine(DATABASE_URL, echo=True)
+        db_host = DATABASE_URL.split('@')[1].split('/')[0] if '@' in DATABASE_URL else 'RDS'
+        print(f"✅ RDS(PostgreSQL) 연결: {db_host}")
+    else:
+        # DATABASE_URL이 있지만 PostgreSQL 형식이 아닌 경우 경고
+        print(f"⚠️ 경고: DATABASE_URL이 PostgreSQL 형식이 아닙니다: {DATABASE_URL[:20]}...")
+        print("⚠️ SQLite로 폴백합니다.")
+        sqlite_file_name = "database.db"
+        sqlite_url = f"sqlite:///{sqlite_file_name}"
+        engine = create_engine(sqlite_url, echo=True, connect_args={"check_same_thread": False})
+        print(f"✅ SQLite 연결: {sqlite_file_name}")
 else:
     # SQLite 사용 (로컬 개발용)
     sqlite_file_name = "database.db"
